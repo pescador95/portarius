@@ -1,0 +1,3 @@
+Bloco,Apto,Tipo,Morador,CPF,Telefone,Email,Pets,Tipo de pet
+A,30,Proprietario,Fulano da Silva,000.000.000-00,(45) 9 99999-99999,email@example.com,Felisberto,Gato
+B,40,Inquilino,Cicrano da Silva,000.000.000-00,(45) 9 99999-99999,email@example.com,Katiorro,Cachorro
