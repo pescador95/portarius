@@ -237,7 +237,6 @@ func (s *ReservationImportService) processCSVFile(filePath string) error {
 			Status:        StatusConfirmed,
 			PaymentStatus: PaymentPaid,
 			PaymentMethod: PaymentMethodBoleto,
-			GuestCount:    0,
 		}
 
 		if strings.Contains(strings.ToUpper(salao), "2") {

@@ -97,6 +97,8 @@ func (s *ResidentImportService) processCSVFile(filePath string) error {
 			ResidentType: residentType,
 		}
 
+		resident.normalise()
+
 		log.Printf("Processing resident: %+v", resident)
 
 		var existingResident Resident

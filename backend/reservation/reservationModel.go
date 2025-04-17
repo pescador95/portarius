@@ -40,17 +40,21 @@ const (
 	PaymentRefunded PaymentStatus = "REEMBOLSADO"
 )
 
+const (
+	CommonPaymentAmount  = 45.00
+	HolydayPaymentAmount = 70.00
+)
+
 type Reservation struct {
 	gorm.Model
-	ResidentID    uint              `json:"resident_id"`
-	Resident      resident.Resident `json:"resident" gorm:"foreignKey:ResidentID"`
-	Space         SpaceType         `json:"space" gorm:"not null;type:varchar(10);default:'SALAO_1'"`
-	StartTime     time.Time         `json:"start_time" gorm:"not null"`
-	EndTime       time.Time         `json:"end_time"`
-	Status        ReservationStatus `json:"status" gorm:"type:varchar(20);not null;default:'PENDENTE'"`
-	PaymentStatus PaymentStatus     `json:"payment_status" gorm:"type:varchar(20);not null;default:'PAGAMENTO_PENDENTE'"`
-	Description   string            `json:"description"`
-	GuestCount    int               `json:"guest_count";default:0"`
+	ResidentID    uint               `json:"resident_id"`
+	Resident      *resident.Resident `json:"resident" gorm:"foreignKey:ResidentID"`
+	Space         SpaceType          `json:"space" gorm:"not null;type:varchar(10);default:'SALAO_1'"`
+	StartTime     time.Time          `json:"start_time" gorm:"not null"`
+	EndTime       time.Time          `json:"end_time"`
+	Status        ReservationStatus  `json:"status" gorm:"type:varchar(20);not null;default:'PENDENTE'"`
+	PaymentStatus PaymentStatus      `json:"payment_status" gorm:"type:varchar(20);not null;default:'PAGAMENTO_PENDENTE'"`
+	Description   string             `json:"description"`
 
 	KeysTakenAt    *time.Time `json:"keys_taken_at" gorm:"type:timestamp"`
 	KeysReturnedAt *time.Time `json:"keys_returned_at" gorm:"type:timestamp"`
@@ -65,17 +69,12 @@ type Reservation struct {
 
 func (r *Reservation) BeforeSave(tx *gorm.DB) (err error) {
 
-	if holyday.IsHolyday(r.StartTime) {
-		r.PaymentAmount = 70.00
-		return
-	}
-
 	weekday := r.StartTime.Weekday()
 	switch {
-	case weekday == time.Friday || weekday == time.Saturday || weekday == time.Sunday:
-		r.PaymentAmount = 70.00
+	case weekday == time.Friday || weekday == time.Saturday || weekday == time.Sunday || holyday.IsHolyday(r.StartTime):
+		r.PaymentAmount = HolydayPaymentAmount
 	default:
-		r.PaymentAmount = 45.00
+		r.PaymentAmount = CommonPaymentAmount
 	}
 
 	return

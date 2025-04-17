@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"portarius/resident"
+	"portarius/utils"
 
 	"gorm.io/gorm"
 )
@@ -85,8 +86,8 @@ func (s *InventoryImportService) processCSVFile(filePath string) error {
 		}
 
 		var resident resident.Resident
-		if err := s.db.Where("document = ?", strings.TrimSpace(record[4])).First(&resident).Error; err != nil {
-			log.Printf("Resident not found with document: %s", record[4])
+		if err := s.db.Where("document = ?", strings.TrimSpace(utils.KeepOnlyNumbers(record[4]))).First(&resident).Error; err != nil {
+			log.Printf("Resident not found with document: %s", utils.KeepOnlyNumbers(record[4]))
 			continue
 		}
 

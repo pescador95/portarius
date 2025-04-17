@@ -53,7 +53,6 @@ func (c *ReservationController) Create(ctx *gin.Context) {
 		StartTime   time.Time `json:"start_time" binding:"required"`
 		EndTime     time.Time `json:"end_time" binding:"required"`
 		Description string    `json:"description"`
-		GuestCount  int       `json:"guest_count"`
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -72,7 +71,6 @@ func (c *ReservationController) Create(ctx *gin.Context) {
 		StartTime:     input.StartTime,
 		EndTime:       input.EndTime,
 		Description:   input.Description,
-		GuestCount:    input.GuestCount,
 		Status:        StatusPending,
 		PaymentStatus: PaymentPending,
 	}
@@ -96,7 +94,6 @@ func (c *ReservationController) Update(ctx *gin.Context) {
 		StartTime   time.Time `json:"start_time"`
 		EndTime     time.Time `json:"end_time"`
 		Description string    `json:"description"`
-		GuestCount  int       `json:"guest_count"`
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -120,7 +117,6 @@ func (c *ReservationController) Update(ctx *gin.Context) {
 	}
 
 	reservation.Description = input.Description
-	reservation.GuestCount = input.GuestCount
 
 	if err := c.db.Save(&reservation).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
