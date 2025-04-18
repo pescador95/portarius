@@ -1,8 +1,8 @@
 package reservation
 
 import (
-	"portarius/holyday"
-	"portarius/resident"
+	"portarius/internal/holyday"
+	"portarius/internal/resident/domain"
 	"time"
 
 	"gorm.io/gorm"
@@ -47,14 +47,14 @@ const (
 
 type Reservation struct {
 	gorm.Model
-	ResidentID    uint               `json:"resident_id"`
-	Resident      *resident.Resident `json:"resident" gorm:"foreignKey:ResidentID"`
-	Space         SpaceType          `json:"space" gorm:"not null;type:varchar(10);default:'SALAO_1'"`
-	StartTime     time.Time          `json:"start_time" gorm:"not null"`
-	EndTime       time.Time          `json:"end_time"`
-	Status        ReservationStatus  `json:"status" gorm:"type:varchar(20);not null;default:'PENDENTE'"`
-	PaymentStatus PaymentStatus      `json:"payment_status" gorm:"type:varchar(20);not null;default:'PAGAMENTO_PENDENTE'"`
-	Description   string             `json:"description"`
+	ResidentID    uint              `json:"resident_id"`
+	Resident      *domain.Resident  `json:"resident" gorm:"foreignKey:ResidentID"`
+	Space         SpaceType         `json:"space" gorm:"not null;type:varchar(10);default:'SALAO_1'"`
+	StartTime     time.Time         `json:"start_time" gorm:"not null"`
+	EndTime       time.Time         `json:"end_time"`
+	Status        ReservationStatus `json:"status" gorm:"type:varchar(20);not null;default:'PENDENTE'"`
+	PaymentStatus PaymentStatus     `json:"payment_status" gorm:"type:varchar(20);not null;default:'PAGAMENTO_PENDENTE'"`
+	Description   string            `json:"description"`
 
 	KeysTakenAt    *time.Time `json:"keys_taken_at" gorm:"type:timestamp"`
 	KeysReturnedAt *time.Time `json:"keys_returned_at" gorm:"type:timestamp"`

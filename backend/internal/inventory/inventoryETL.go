@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"portarius/resident"
+	"portarius/internal/resident/domain"
 	"portarius/utils"
 
 	"gorm.io/gorm"
@@ -24,7 +24,7 @@ func NewInventoryImportService(db *gorm.DB) *InventoryImportService {
 
 func (s *InventoryImportService) ImportPetsFromCSV() error {
 
-	etlPath := filepath.Join("..", "ETL", "resources", "resident_inventory")
+	etlPath := filepath.Join("..", "resources", "ETL", "resident_inventory")
 	absPath, err := filepath.Abs(etlPath)
 	if err != nil {
 		return fmt.Errorf("error getting absolute path: %v", err)
@@ -85,7 +85,7 @@ func (s *InventoryImportService) processCSVFile(filePath string) error {
 			continue
 		}
 
-		var resident resident.Resident
+		var resident domain.Resident
 		if err := s.db.Where("document = ?", strings.TrimSpace(utils.KeepOnlyNumbers(record[4]))).First(&resident).Error; err != nil {
 			log.Printf("Resident not found with document: %s", utils.KeepOnlyNumbers(record[4]))
 			continue

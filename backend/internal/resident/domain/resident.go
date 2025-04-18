@@ -1,4 +1,4 @@
-package resident
+package domain
 
 import (
 	"portarius/utils"
@@ -27,18 +27,18 @@ type Resident struct {
 }
 
 func (r *Resident) BeforeSave(tx *gorm.DB) error {
-	return r.normalise()
+	return r.Normalise()
 }
 
 func (r *Resident) BeforeCreate(tx *gorm.DB) error {
-	return r.normalise()
+	return r.Normalise()
 }
 
 func (r *Resident) BeforeUpdate(tx *gorm.DB) error {
-	return r.normalise()
+	return r.Normalise()
 }
 
-func (r *Resident) normalise() error {
+func (r *Resident) Normalise() error {
 	r.Document = utils.KeepOnlyNumbers(r.Document)
 	r.Phone = utils.KeepOnlyNumbers(r.Phone)
 	r.Apartment = utils.KeepOnlyNumbers(r.Apartment)

@@ -135,7 +135,7 @@ func normalizeUnit(unit string) string {
 
 func (s *ReservationImportService) ImportSalonReservationsFromCSV() error {
 
-	etlPath := filepath.Join("..", "ETL", "resources", "salon")
+	etlPath := filepath.Join("..", "resources", "ETL", "salon")
 	absPath, err := filepath.Abs(etlPath)
 	if err != nil {
 		return fmt.Errorf("erro ao obter caminho absoluto: %v", err)
