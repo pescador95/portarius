@@ -72,7 +72,7 @@ func main() {
 	{
 		inventory.RegisterRoutes(apiPrefixGroup, db)
 		pkg.RegisterRoutes(apiPrefixGroup, db)
-		residentHandler.RegisterRoutes(apiPrefixGroup, db)
+		residentHandler.ResidentRegisterRoutes(apiPrefixGroup, db)
 		reservation.RegisterRoutes(apiPrefixGroup, db)
 		user.RegisterProtectedRoutes(apiPrefixGroup, db)
 	}

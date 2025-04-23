@@ -10,13 +10,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
+func ResidentRegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	var (
 		repo     domain.IResidentRepository      = repository.NewResidentRepository(db)
 		importer interfaces.ICSVResidentImporter = resident.NewResidentImportService(db)
 	)
 
-	controller := NewResidentController(repo, importer)
+	controller := NewResidentHandler(repo, importer)
 
 	residents := router.Group("/residents")
 	{

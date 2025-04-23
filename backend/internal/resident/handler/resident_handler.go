@@ -10,19 +10,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ResidentController struct {
+type ResidentHandler struct {
 	repo          domain.IResidentRepository
 	importService interfaces.ICSVResidentImporter
 }
 
-func NewResidentController(repo domain.IResidentRepository, importer interfaces.ICSVResidentImporter) *ResidentController {
-	return &ResidentController{
+func NewResidentHandler(repo domain.IResidentRepository, importer interfaces.ICSVResidentImporter) *ResidentHandler {
+	return &ResidentHandler{
 		repo:          repo,
 		importService: importer,
 	}
 }
 
-func (c *ResidentController) GetAll(ctx *gin.Context) {
+func (c *ResidentHandler) GetAll(ctx *gin.Context) {
 	residents, err := c.repo.GetAll()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -31,7 +31,7 @@ func (c *ResidentController) GetAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, residents)
 }
 
-func (c *ResidentController) GetByID(ctx *gin.Context) {
+func (c *ResidentHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -46,7 +46,7 @@ func (c *ResidentController) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resident)
 }
 
-func (c *ResidentController) Create(ctx *gin.Context) {
+func (c *ResidentHandler) Create(ctx *gin.Context) {
 	var resident domain.Resident
 	if err := ctx.ShouldBindJSON(&resident); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -59,7 +59,7 @@ func (c *ResidentController) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, resident)
 }
 
-func (c *ResidentController) Update(ctx *gin.Context) {
+func (c *ResidentHandler) Update(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -80,7 +80,7 @@ func (c *ResidentController) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resident)
 }
 
-func (c *ResidentController) Delete(ctx *gin.Context) {
+func (c *ResidentHandler) Delete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -94,7 +94,7 @@ func (c *ResidentController) Delete(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Morador excluído com sucesso"})
 }
 
-func (c *ResidentController) ImportResidents(ctx *gin.Context) {
+func (c *ResidentHandler) ImportResidents(ctx *gin.Context) {
 	if err := c.importService.ImportResidentsFromCSV(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
