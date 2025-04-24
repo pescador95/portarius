@@ -16,15 +16,15 @@ func ResidentRegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		importer interfaces.ICSVResidentImporter = residentService.NewResidentImportService(db)
 	)
 
-	controller := NewResidentHandler(repo, importer)
+	handler := NewResidentHandler(repo, importer)
 
 	residents := router.Group("/residents")
 	{
-		residents.GET("/", controller.GetAll)
-		residents.GET("/:id", controller.GetByID)
-		residents.POST("/", controller.Create)
-		residents.PUT("/:id", controller.Update)
-		residents.DELETE("/:id", controller.Delete)
-		residents.POST("/import", controller.ImportResidents)
+		residents.GET("/", handler.GetAll)
+		residents.GET("/:id", handler.GetByID)
+		residents.POST("/", handler.Create)
+		residents.PUT("/:id", handler.Update)
+		residents.DELETE("/:id", handler.Delete)
+		residents.POST("/import", handler.ImportResidents)
 	}
 }

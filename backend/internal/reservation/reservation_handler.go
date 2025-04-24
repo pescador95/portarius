@@ -10,19 +10,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type ReservationController struct {
+type ReservationHandler struct {
 	db            *gorm.DB
 	importService *ReservationImportService
 }
 
-func NewReservationController(db *gorm.DB) *ReservationController {
-	return &ReservationController{
+func NewReservationHandler(db *gorm.DB) *ReservationHandler {
+	return &ReservationHandler{
 		db:            db,
 		importService: NewReservationImportService(db),
 	}
 }
 
-func (c *ReservationController) GetAll(ctx *gin.Context) {
+func (c *ReservationHandler) GetAll(ctx *gin.Context) {
 	var reservations []Reservation
 	if err := c.db.Preload("Resident").Find(&reservations).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -31,7 +31,7 @@ func (c *ReservationController) GetAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservations)
 }
 
-func (c *ReservationController) GetByID(ctx *gin.Context) {
+func (c *ReservationHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -46,7 +46,7 @@ func (c *ReservationController) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservation)
 }
 
-func (c *ReservationController) Create(ctx *gin.Context) {
+func (c *ReservationHandler) Create(ctx *gin.Context) {
 	var input struct {
 		ResidentID  uint      `json:"resident_id" binding:"required"`
 		Space       SpaceType `json:"space" binding:"required"`
@@ -83,7 +83,7 @@ func (c *ReservationController) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, reservation)
 }
 
-func (c *ReservationController) Update(ctx *gin.Context) {
+func (c *ReservationHandler) Update(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -126,7 +126,7 @@ func (c *ReservationController) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservation)
 }
 
-func (c *ReservationController) Delete(ctx *gin.Context) {
+func (c *ReservationHandler) Delete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -140,11 +140,11 @@ func (c *ReservationController) Delete(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Reserva excluída com sucesso"})
 }
 
-func (c *ReservationController) Confirm(ctx *gin.Context) {
+func (c *ReservationHandler) Confirm(ctx *gin.Context) {
 	c.updateStatus(ctx, StatusConfirmed)
 }
 
-func (c *ReservationController) Cancel(ctx *gin.Context) {
+func (c *ReservationHandler) Cancel(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -177,7 +177,7 @@ func (c *ReservationController) Cancel(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservation)
 }
 
-func (c *ReservationController) TakeKeys(ctx *gin.Context) {
+func (c *ReservationHandler) TakeKeys(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -207,7 +207,7 @@ func (c *ReservationController) TakeKeys(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservation)
 }
 
-func (c *ReservationController) ReturnKeys(ctx *gin.Context) {
+func (c *ReservationHandler) ReturnKeys(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -237,11 +237,11 @@ func (c *ReservationController) ReturnKeys(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservation)
 }
 
-func (c *ReservationController) Complete(ctx *gin.Context) {
+func (c *ReservationHandler) Complete(ctx *gin.Context) {
 	c.updateStatus(ctx, StatusKeysReturned)
 }
 
-func (c *ReservationController) ConfirmPayment(ctx *gin.Context) {
+func (c *ReservationHandler) ConfirmPayment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -282,7 +282,7 @@ func (c *ReservationController) ConfirmPayment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservation)
 }
 
-func (c *ReservationController) GetByResident(ctx *gin.Context) {
+func (c *ReservationHandler) GetByResident(ctx *gin.Context) {
 	residentID, err := strconv.ParseUint(ctx.Param("residentId"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID do morador inválido"})
@@ -297,7 +297,7 @@ func (c *ReservationController) GetByResident(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservations)
 }
 
-func (c *ReservationController) GetBySpace(ctx *gin.Context) {
+func (c *ReservationHandler) GetBySpace(ctx *gin.Context) {
 	space := ctx.Param("space")
 
 	var reservations []Reservation
@@ -308,7 +308,7 @@ func (c *ReservationController) GetBySpace(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservations)
 }
 
-func (c *ReservationController) GetByStatus(ctx *gin.Context) {
+func (c *ReservationHandler) GetByStatus(ctx *gin.Context) {
 	status := ctx.Param("status")
 
 	var reservations []Reservation
@@ -319,7 +319,7 @@ func (c *ReservationController) GetByStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservations)
 }
 
-func (c *ReservationController) GetByDateRange(ctx *gin.Context) {
+func (c *ReservationHandler) GetByDateRange(ctx *gin.Context) {
 	startDate := ctx.Query("start_date")
 	endDate := ctx.Query("end_date")
 
@@ -348,7 +348,7 @@ func (c *ReservationController) GetByDateRange(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservations)
 }
 
-func (c *ReservationController) GetUpcomingReservations(ctx *gin.Context) {
+func (c *ReservationHandler) GetUpcomingReservations(ctx *gin.Context) {
 	var reservations []Reservation
 	if err := c.db.Where("start_time > ? AND status != ?", time.Now(), StatusCancelled).
 		Order("start_time ASC").
@@ -359,7 +359,7 @@ func (c *ReservationController) GetUpcomingReservations(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reservations)
 }
 
-func (c *ReservationController) updateStatus(ctx *gin.Context, status ReservationStatus) {
+func (c *ReservationHandler) updateStatus(ctx *gin.Context, status ReservationStatus) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -382,7 +382,7 @@ func (c *ReservationController) updateStatus(ctx *gin.Context, status Reservatio
 	ctx.JSON(http.StatusOK, reservation)
 }
 
-func (c *ReservationController) checkReservationConflict(space SpaceType, startTime, endTime time.Time, excludeID uint) error {
+func (c *ReservationHandler) checkReservationConflict(space SpaceType, startTime, endTime time.Time, excludeID uint) error {
 	var conflictingReservation Reservation
 	query := c.db.Where(
 		"space = ? AND status NOT IN (?) AND ((start_time BETWEEN ? AND ?) OR (end_time BETWEEN ? AND ?) OR (start_time <= ? AND end_time >= ?))",
@@ -407,7 +407,7 @@ func (c *ReservationController) checkReservationConflict(space SpaceType, startT
 	return nil
 }
 
-func (c *ReservationController) ImportSalonReservations(ctx *gin.Context) {
+func (c *ReservationHandler) ImportSalonReservations(ctx *gin.Context) {
 	if err := c.importService.ImportSalonReservationsFromCSV(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),

@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserController struct {
+type UserHandler struct {
 	db *gorm.DB
 }
 
@@ -26,11 +26,11 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func NewUserController(db *gorm.DB) *UserController {
-	return &UserController{db: db}
+func NewUserHandler(db *gorm.DB) *UserHandler {
+	return &UserHandler{db: db}
 }
 
-func (c *UserController) Register(ctx *gin.Context) {
+func (c *UserHandler) Register(ctx *gin.Context) {
 	var req RegisterRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -52,7 +52,7 @@ func (c *UserController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, user)
 }
 
-func (c *UserController) Login(ctx *gin.Context) {
+func (c *UserHandler) Login(ctx *gin.Context) {
 	var req LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -93,7 +93,7 @@ func (c *UserController) Login(ctx *gin.Context) {
 	})
 }
 
-func (c *UserController) GetAll(ctx *gin.Context) {
+func (c *UserHandler) GetAll(ctx *gin.Context) {
 	var users []User
 	if err := c.db.Find(&users).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -107,7 +107,7 @@ func (c *UserController) GetAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-func (c *UserController) GetByID(ctx *gin.Context) {
+func (c *UserHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -125,7 +125,7 @@ func (c *UserController) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-func (c *UserController) Update(ctx *gin.Context) {
+func (c *UserHandler) Update(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -146,7 +146,7 @@ func (c *UserController) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-func (c *UserController) Delete(ctx *gin.Context) {
+func (c *UserHandler) Delete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -160,7 +160,7 @@ func (c *UserController) Delete(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Usuário excluído com sucesso"})
 }
 
-func (c *UserController) UsersPage(ctx *gin.Context) {
+func (c *UserHandler) UsersPage(ctx *gin.Context) {
 	var users []User
 	if err := c.db.Find(&users).Error; err != nil {
 		ctx.HTML(http.StatusInternalServerError, "users.html", gin.H{

@@ -1,134 +1,134 @@
-package pkg
+package handler
 
 import (
 	"net/http"
+	"portarius/internal/package/domain"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-type PackageController struct {
-	db *gorm.DB
+type PackageHandler struct {
+	repo domain.IPackageRepository
 }
 
-func NewPackageController(db *gorm.DB) *PackageController {
-	return &PackageController{db: db}
+func NewPackageHandler(repo domain.IPackageRepository) *PackageHandler {
+	return &PackageHandler{repo: repo}
 }
 
-func (c *PackageController) GetAll(ctx *gin.Context) {
-	var packages []Package
-	if err := c.db.Find(&packages).Error; err != nil {
+func (c *PackageHandler) GetAll(ctx *gin.Context) {
+	packages, err := c.repo.GetAll()
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, packages)
 }
 
-func (c *PackageController) GetByID(ctx *gin.Context) {
+func (c *PackageHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	var pkg Package
-	if err := c.db.First(&pkg, id).Error; err != nil {
+	pkg, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Encomenda não encontrada"})
 		return
 	}
 	ctx.JSON(http.StatusOK, pkg)
 }
 
-func (c *PackageController) Create(ctx *gin.Context) {
-	var pkg Package
+func (c *PackageHandler) Create(ctx *gin.Context) {
+	var pkg domain.Package
 	if err := ctx.ShouldBindJSON(&pkg); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	pkg.ReceivedAt = time.Now()
-	if err := c.db.Create(&pkg).Error; err != nil {
+	if err := c.repo.Create(&pkg); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusCreated, pkg)
 }
 
-func (c *PackageController) Update(ctx *gin.Context) {
+func (c *PackageHandler) Update(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	var pkg Package
+	var pkg domain.Package
 	if err := ctx.ShouldBindJSON(&pkg); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	pkg.ID = uint(id)
-	if err := c.db.Save(&pkg).Error; err != nil {
+	if err := c.repo.Update(&pkg); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, pkg)
 }
 
-func (c *PackageController) Delete(ctx *gin.Context) {
+func (c *PackageHandler) Delete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	if err := c.db.Delete(&Package{}, id).Error; err != nil {
+	if err := c.repo.Delete(uint(id)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Encomenda excluída com sucesso"})
 }
 
-func (c *PackageController) MarkAsDelivered(ctx *gin.Context) {
+func (c *PackageHandler) MarkAsDelivered(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	var pkg Package
-	if err := c.db.First(&pkg, id).Error; err != nil {
+	pkg, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Encomenda não encontrada"})
 		return
 	}
 
-	pkg.Status = PackageDelivered
+	pkg.Status = domain.PackageDelivered
 	pkg.DeliveredAt = time.Now()
-	if err := c.db.Save(&pkg).Error; err != nil {
+	if err := c.repo.Update(pkg); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, pkg)
 }
 
-func (c *PackageController) MarkAsLost(ctx *gin.Context) {
+func (c *PackageHandler) MarkAsLost(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	var pkg Package
-	if err := c.db.First(&pkg, id).Error; err != nil {
+	pkg, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Encomenda não encontrada"})
 		return
 	}
 
-	pkg.Status = PackageLost
+	pkg.Status = domain.PackageLost
 	pkg.DeliveredAt = time.Now()
-	if err := c.db.Save(&pkg).Error; err != nil {
+	if err := c.repo.Update(pkg); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
@@ -16,13 +17,17 @@ import (
 	inventoryDomain "portarius/internal/inventory/domain"
 	inventoryHandler "portarius/internal/inventory/handler"
 
-	pkg "portarius/internal/package"
+	packageDomain "portarius/internal/package/domain"
+	packageHandler "portarius/internal/package/handler"
+
 	"portarius/internal/reservation"
-	"portarius/internal/resident/domain"
+
+	residentDomain "portarius/internal/resident/domain"
 	residentHandler "portarius/internal/resident/handler"
+
 	"portarius/middleware"
 
-	"portarius/internal/user"
+	userHandler "portarius/internal/user"
 )
 
 func main() {
@@ -47,8 +52,8 @@ func main() {
 
 	db.AutoMigrate(
 		&inventoryDomain.Inventory{},
-		&pkg.Package{},
-		&domain.Resident{},
+		&packageDomain.Package{},
+		&residentDomain.Resident{},
 		&reservation.Reservation{},
 		&user.User{},
 	)
@@ -68,15 +73,15 @@ func main() {
 
 	apiPrefixGroup := r.Group("/api")
 
-	user.RegisterRoutes(apiPrefixGroup, db)
+	userHandler.RegisterUserRoutes(apiPrefixGroup, db)
 
 	apiPrefixGroup.Use(middleware.AuthMiddleware())
 	{
 		inventoryHandler.RegisterInventoryRoutes(apiPrefixGroup, db)
 		residentHandler.ResidentRegisterRoutes(apiPrefixGroup, db)
-		pkg.RegisterRoutes(apiPrefixGroup, db)
-		reservation.RegisterRoutes(apiPrefixGroup, db)
-		user.RegisterProtectedRoutes(apiPrefixGroup, db)
+		packageHandler.RegisterPackageRoutes(apiPrefixGroup, db)
+		reservation.RegisterReservationRoutes(apiPrefixGroup, db)
+		userHandler.RegisterUserProtectedRoutes(apiPrefixGroup, db)
 	}
 
 	port := os.Getenv("PORT")

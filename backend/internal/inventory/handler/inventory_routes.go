@@ -17,15 +17,15 @@ func RegisterInventoryRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		importer interfaces.ICSVInventoryImporter = inventoryService.NewInventoryImportService(db)
 	)
 
-	controller := NewInventoryHandler(repo, importer)
+	handler := NewInventoryHandler(repo, importer)
 
 	inventory := router.Group("/inventory")
 	{
-		inventory.GET("/", controller.GetAll)
-		inventory.GET("/:id", controller.GetByID)
-		inventory.POST("/", controller.Create)
-		inventory.PUT("/:id", controller.Update)
-		inventory.DELETE("/:id", controller.Delete)
-		inventory.POST("/import-pets", controller.ImportPets)
+		inventory.GET("/", handler.GetAll)
+		inventory.GET("/:id", handler.GetByID)
+		inventory.POST("/", handler.Create)
+		inventory.PUT("/:id", handler.Update)
+		inventory.DELETE("/:id", handler.Delete)
+		inventory.POST("/import-pets", handler.ImportPets)
 	}
 }
