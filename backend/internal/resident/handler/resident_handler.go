@@ -99,5 +99,5 @@ func (c *ResidentHandler) ImportResidents(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Residents imported successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Moradores importados com sucesso"})
 }

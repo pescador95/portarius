@@ -5,7 +5,7 @@
 package mock_resident
 
 import (
-resident "portarius/internal/resident/domain"
+residentDomain "portarius/internal/resident/domain"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -31,7 +31,7 @@ func (m *MockIResidentService) EXPECT() *MockIResidentServiceMockRecorder {
 	return m.recorder
 }
 
-func (m *MockIResidentService) CreateResident(arg0 *resident.Resident) error {
+func (m *MockIResidentService) CreateResident(arg0 *residentDomain.Resident) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateResident", arg0)
 	ret0, _ := ret[0].(error)
@@ -55,10 +55,10 @@ func (mr *MockIResidentServiceMockRecorder) DeleteResident(arg0 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResident", reflect.TypeOf((*MockIResidentService)(nil).DeleteResident), arg0)
 }
 
-func (m *MockIResidentService) GetAllResidents() ([]resident.Resident, error) {
+func (m *MockIResidentService) GetAllResidents() ([]residentDomain.Resident, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllResidents")
-	ret0, _ := ret[0].([]resident.Resident)
+	ret0, _ := ret[0].([]residentDomain.Resident)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -68,10 +68,10 @@ func (mr *MockIResidentServiceMockRecorder) GetAllResidents() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllResidents", reflect.TypeOf((*MockIResidentService)(nil).GetAllResidents))
 }
 
-func (m *MockIResidentService) GetResidentByID(arg0 uint) (*resident.Resident, error) {
+func (m *MockIResidentService) GetResidentByID(arg0 uint) (*residentDomain.Resident, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetResidentByID", arg0)
-	ret0, _ := ret[0].(*resident.Resident)
+	ret0, _ := ret[0].(*residentDomain.Resident)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -81,7 +81,7 @@ func (mr *MockIResidentServiceMockRecorder) GetResidentByID(arg0 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetResidentByID", reflect.TypeOf((*MockIResidentService)(nil).GetResidentByID), arg0)
 }
 
-func (m *MockIResidentService) UpdateResident(arg0 *resident.Resident) error {
+func (m *MockIResidentService) UpdateResident(arg0 *residentDomain.Resident) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateResident", arg0)
 	ret0, _ := ret[0].(error)

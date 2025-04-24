@@ -1,99 +1,100 @@
-package inventory
+package handler
 
 import (
 	"net/http"
+	"portarius/internal/inventory/domain"
+	"portarius/internal/inventory/interfaces"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-type InventoryController struct {
-	db            *gorm.DB
-	importService *InventoryImportService
+type InventoryHandler struct {
+	repo          domain.IInventoryRepository
+	importService interfaces.ICSVInventoryImporter
 }
 
-func NewInventoryController(db *gorm.DB) *InventoryController {
-	return &InventoryController{
-		db:            db,
-		importService: NewInventoryImportService(db),
+func NewInventoryHandler(repo domain.IInventoryRepository, importer interfaces.ICSVInventoryImporter) *InventoryHandler {
+	return &InventoryHandler{
+		repo:          repo,
+		importService: importer,
 	}
 }
 
-func (c *InventoryController) GetAll(ctx *gin.Context) {
-	var items []Inventory
-	if err := c.db.Find(&items).Error; err != nil {
+func (c *InventoryHandler) GetAll(ctx *gin.Context) {
+	items, err := c.repo.GetAll()
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, items)
 }
 
-func (c *InventoryController) GetByID(ctx *gin.Context) {
+func (c *InventoryHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	var item Inventory
-	if err := c.db.First(&item, id).Error; err != nil {
+	item, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Item não encontrado"})
 		return
 	}
 	ctx.JSON(http.StatusOK, item)
 }
 
-func (c *InventoryController) Create(ctx *gin.Context) {
-	var item Inventory
+func (c *InventoryHandler) Create(ctx *gin.Context) {
+	var item domain.Inventory
 	if err := ctx.ShouldBindJSON(&item); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := c.db.Create(&item).Error; err != nil {
+	if err := c.repo.Create(&item); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusCreated, item)
 }
 
-func (c *InventoryController) Update(ctx *gin.Context) {
+func (c *InventoryHandler) Update(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	var item Inventory
+	var item domain.Inventory
 	if err := ctx.ShouldBindJSON(&item); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	item.ID = uint(id)
-	if err := c.db.Save(&item).Error; err != nil {
+	if err := c.repo.Update(&item); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, item)
 }
 
-func (c *InventoryController) Delete(ctx *gin.Context) {
+func (c *InventoryHandler) Delete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	if err := c.db.Delete(&Inventory{}, id).Error; err != nil {
+	if err := c.repo.Delete(uint(id)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Item excluído com sucesso"})
 }
 
-func (c *InventoryController) ImportPets(ctx *gin.Context) {
+func (c *InventoryHandler) ImportPets(ctx *gin.Context) {
 	if err := c.importService.ImportPetsFromCSV(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -102,6 +103,6 @@ func (c *InventoryController) ImportPets(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Pets imported successfully",
+		"message": "Pets importados com sucesso",
 	})
 }

@@ -13,7 +13,9 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"portarius/internal/inventory"
+	inventoryDomain "portarius/internal/inventory/domain"
+	inventoryHandler "portarius/internal/inventory/handler"
+
 	pkg "portarius/internal/package"
 	"portarius/internal/reservation"
 	"portarius/internal/resident/domain"
@@ -44,7 +46,7 @@ func main() {
 	}
 
 	db.AutoMigrate(
-		&inventory.Inventory{},
+		&inventoryDomain.Inventory{},
 		&pkg.Package{},
 		&domain.Resident{},
 		&reservation.Reservation{},
@@ -70,9 +72,9 @@ func main() {
 
 	apiPrefixGroup.Use(middleware.AuthMiddleware())
 	{
-		inventory.RegisterRoutes(apiPrefixGroup, db)
-		pkg.RegisterRoutes(apiPrefixGroup, db)
+		inventoryHandler.RegisterInventoryRoutes(apiPrefixGroup, db)
 		residentHandler.ResidentRegisterRoutes(apiPrefixGroup, db)
+		pkg.RegisterRoutes(apiPrefixGroup, db)
 		reservation.RegisterRoutes(apiPrefixGroup, db)
 		user.RegisterProtectedRoutes(apiPrefixGroup, db)
 	}

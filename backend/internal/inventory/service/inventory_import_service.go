@@ -8,7 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"portarius/internal/resident/domain"
+	"portarius/internal/inventory/domain"
+	residentDomain "portarius/internal/resident/domain"
 	"portarius/utils"
 
 	"gorm.io/gorm"
@@ -85,24 +86,24 @@ func (s *InventoryImportService) processCSVFile(filePath string) error {
 			continue
 		}
 
-		var resident domain.Resident
+		var resident residentDomain.Resident
 		if err := s.db.Where("document = ?", strings.TrimSpace(utils.KeepOnlyNumbers(record[4]))).First(&resident).Error; err != nil {
 			log.Printf("Resident not found with document: %s", utils.KeepOnlyNumbers(record[4]))
 			continue
 		}
 
-		inventory := Inventory{
+		inventory := domain.Inventory{
 			Name:          strings.TrimSpace(record[7]),
 			Description:   strings.TrimSpace(record[8]),
 			Quantity:      1,
 			OwnerID:       resident.ID,
-			InventoryType: InventoryTypePet,
+			InventoryType: domain.InventoryTypePet,
 		}
 
 		log.Printf("Processing pet: %+v", inventory)
 
-		var existingInventory Inventory
-		result := s.db.Where("owner_id = ? AND name = ? AND inventory_type = ?", resident.ID, inventory.Name, InventoryTypePet).First(&existingInventory)
+		var existingInventory domain.Inventory
+		result := s.db.Where("owner_id = ? AND name = ? AND inventory_type = ?", resident.ID, inventory.Name, domain.InventoryTypePet).First(&existingInventory)
 		if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
 			return fmt.Errorf("error checking existing pet: %v", result.Error)
 		}

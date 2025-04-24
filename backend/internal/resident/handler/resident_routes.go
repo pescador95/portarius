@@ -4,7 +4,7 @@ import (
 	"portarius/internal/resident/domain"
 	"portarius/internal/resident/interfaces"
 	"portarius/internal/resident/repository"
-	resident "portarius/internal/resident/service"
+	residentService "portarius/internal/resident/service"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -13,7 +13,7 @@ import (
 func ResidentRegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	var (
 		repo     domain.IResidentRepository      = repository.NewResidentRepository(db)
-		importer interfaces.ICSVResidentImporter = resident.NewResidentImportService(db)
+		importer interfaces.ICSVResidentImporter = residentService.NewResidentImportService(db)
 	)
 
 	controller := NewResidentHandler(repo, importer)

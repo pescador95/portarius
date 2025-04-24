@@ -5,7 +5,7 @@
 package mock_resident
 
 import (
-	resident "portarius/internal/resident/domain"
+	residentDomain "portarius/internal/resident/domain"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -30,7 +30,7 @@ func (m *MockIResidentRepository) EXPECT() *MockIResidentRepositoryMockRecorder 
 	return m.recorder
 }
 
-func (m *MockIResidentRepository) Create(arg0 *resident.Resident) error {
+func (m *MockIResidentRepository) Create(arg0 *residentDomain.Resident) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0)
 	ret0, _ := ret[0].(error)
@@ -54,10 +54,10 @@ func (mr *MockIResidentRepositoryMockRecorder) Delete(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIResidentRepository)(nil).Delete), arg0)
 }
 
-func (m *MockIResidentRepository) GetAll() ([]resident.Resident, error) {
+func (m *MockIResidentRepository) GetAll() ([]residentDomain.Resident, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll")
-	ret0, _ := ret[0].([]resident.Resident)
+	ret0, _ := ret[0].([]residentDomain.Resident)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -67,10 +67,10 @@ func (mr *MockIResidentRepositoryMockRecorder) GetAll() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIResidentRepository)(nil).GetAll))
 }
 
-func (m *MockIResidentRepository) GetByID(arg0 uint) (*resident.Resident, error) {
+func (m *MockIResidentRepository) GetByID(arg0 uint) (*residentDomain.Resident, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", arg0)
-	ret0, _ := ret[0].(*resident.Resident)
+	ret0, _ := ret[0].(*residentDomain.Resident)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -80,7 +80,7 @@ func (mr *MockIResidentRepositoryMockRecorder) GetByID(arg0 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockIResidentRepository)(nil).GetByID), arg0)
 }
 
-func (m *MockIResidentRepository) Update(arg0 *resident.Resident) error {
+func (m *MockIResidentRepository) Update(arg0 *residentDomain.Resident) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", arg0)
 	ret0, _ := ret[0].(error)

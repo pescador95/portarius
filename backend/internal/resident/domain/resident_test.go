@@ -1,7 +1,7 @@
 package domain_test
 
 import (
-	resident "portarius/internal/resident/domain"
+	residentDomain "portarius/internal/resident/domain"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,18 +10,18 @@ import (
 func TestResidentNormalization(t *testing.T) {
 	tests := []struct {
 		name     string
-		input    *resident.Resident
-		expected *resident.Resident
+		input    *residentDomain.Resident
+		expected *residentDomain.Resident
 	}{
 		{
 			name: "should normalize document, phone and block",
-			input: &resident.Resident{
+			input: &residentDomain.Resident{
 				Document:  "123.456.789-00",
 				Phone:     "(11) 99999-9999",
 				Apartment: "42",
 				Block:     "B",
 			},
-			expected: &resident.Resident{
+			expected: &residentDomain.Resident{
 				Document:  "12345678900",
 				Phone:     "11999999999",
 				Apartment: "42",
