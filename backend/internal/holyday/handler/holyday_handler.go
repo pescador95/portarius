@@ -1,23 +1,14 @@
-package holyday
+package handler
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"strconv"
+	"portarius/internal/holyday/domain"
+	"portarius/internal/holyday/service"
 	"time"
 )
 
-type Holyday struct {
-	Date time.Time `json:"date"`
-	Name string    `json:"name"`
-	Type string    `json:"type"`
-}
-
 func IsHolyday(date time.Time) bool {
-	holidays := getHolidaysMock(date.Year())
+	holidays := GetHolidaysMock(date.Year())
 
 	dateStr := date.Format("2006-01-02")
 
@@ -31,14 +22,14 @@ func IsHolyday(date time.Time) bool {
 	return false
 }
 
-func getHolidays(year int) []Holyday {
-	holidays, err := getHolidaysFromAPI(year)
+func GetHolidays(year int) []domain.Holyday {
+	holidays, err := service.GetHolidaysFromAPI(year)
 	if err != nil {
 		log.Printf("Erro ao obter feriados da API: %v", err)
-		return []Holyday{}
+		return []domain.Holyday{}
 	}
 
-	holidays = append(holidays, Holyday{
+	holidays = append(holidays, domain.Holyday{
 		Date: time.Date(year, time.November, 14, 0, 0, 0, 0, time.UTC),
 		Name: "Aniversário de Cascavel",
 		Type: "local",
@@ -47,34 +38,8 @@ func getHolidays(year int) []Holyday {
 	return holidays
 }
 
-func getHolidaysFromAPI(year int) ([]Holyday, error) {
-	url := "https://brasilapi.com.br/api/feriados/v1/" + strconv.Itoa(year)
-	response, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("erro na requisição: status %d", response.StatusCode)
-	}
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var holidays []Holyday
-	err = json.Unmarshal(body, &holidays)
-	if err != nil {
-		return nil, err
-	}
-
-	return holidays, nil
-}
-
-func getHolidaysMock(year int) []Holyday {
-	holidays := []Holyday{
+func GetHolidaysMock(year int) []domain.Holyday {
+	holidays := []domain.Holyday{
 		{
 			Date: time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC),
 			Name: "Confraternização mundial",
