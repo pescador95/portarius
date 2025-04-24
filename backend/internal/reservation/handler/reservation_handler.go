@@ -1,30 +1,27 @@
 package reservation
 
 import (
-	"errors"
 	"net/http"
+	"portarius/internal/reservation/domain"
+	"portarius/internal/reservation/interfaces"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type ReservationHandler struct {
-	db            *gorm.DB
-	importService *ReservationImportService
+	repo          domain.IReservationRepository
+	importService interfaces.ICSVReservationImporter
 }
 
-func NewReservationHandler(db *gorm.DB) *ReservationHandler {
-	return &ReservationHandler{
-		db:            db,
-		importService: NewReservationImportService(db),
-	}
+func NewReservationHandler(repo domain.IReservationRepository) *ReservationHandler {
+	return &ReservationHandler{repo: repo}
 }
 
 func (c *ReservationHandler) GetAll(ctx *gin.Context) {
-	var reservations []Reservation
-	if err := c.db.Preload("Resident").Find(&reservations).Error; err != nil {
+	reservations, err := c.repo.GetAll()
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -33,13 +30,14 @@ func (c *ReservationHandler) GetAll(ctx *gin.Context) {
 
 func (c *ReservationHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	var reservation Reservation
-	if err := c.db.Preload("Resident").First(&reservation, id).Error; err != nil {
+	reservation, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Reserva não encontrada"})
 		return
 	}
@@ -48,11 +46,11 @@ func (c *ReservationHandler) GetByID(ctx *gin.Context) {
 
 func (c *ReservationHandler) Create(ctx *gin.Context) {
 	var input struct {
-		ResidentID  uint      `json:"resident_id" binding:"required"`
-		Space       SpaceType `json:"space" binding:"required"`
-		StartTime   time.Time `json:"start_time" binding:"required"`
-		EndTime     time.Time `json:"end_time" binding:"required"`
-		Description string    `json:"description"`
+		ResidentID  uint             `json:"resident_id" binding:"required"`
+		Space       domain.SpaceType `json:"space" binding:"required"`
+		StartTime   time.Time        `json:"start_time" binding:"required"`
+		EndTime     time.Time        `json:"end_time" binding:"required"`
+		Description string           `json:"description"`
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -60,22 +58,22 @@ func (c *ReservationHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.checkReservationConflict(input.Space, input.StartTime, input.EndTime, 0); err != nil {
+	if err := c.repo.CheckReservationConflict(string(input.Space), input.StartTime, input.EndTime, 0); err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
-	reservation := Reservation{
+	reservation := domain.Reservation{
 		ResidentID:    input.ResidentID,
 		Space:         input.Space,
 		StartTime:     input.StartTime,
 		EndTime:       input.EndTime,
 		Description:   input.Description,
-		Status:        StatusPending,
-		PaymentStatus: PaymentPending,
+		Status:        domain.StatusPending,
+		PaymentStatus: domain.PaymentPending,
 	}
 
-	if err := c.db.Create(&reservation).Error; err != nil {
+	if err := c.repo.Create(&reservation); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -101,14 +99,14 @@ func (c *ReservationHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	var reservation Reservation
-	if err := c.db.First(&reservation, id).Error; err != nil {
+	reservation, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Reserva não encontrada"})
 		return
 	}
 
 	if !reservation.StartTime.Equal(input.StartTime) || !reservation.EndTime.Equal(input.EndTime) {
-		if err := c.checkReservationConflict(reservation.Space, input.StartTime, input.EndTime, reservation.ID); err != nil {
+		if err := c.repo.CheckReservationConflict(string(reservation.Space), input.StartTime, input.EndTime, reservation.ID); err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
@@ -118,7 +116,7 @@ func (c *ReservationHandler) Update(ctx *gin.Context) {
 
 	reservation.Description = input.Description
 
-	if err := c.db.Save(&reservation).Error; err != nil {
+	if err := c.repo.Update(reservation); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -133,7 +131,7 @@ func (c *ReservationHandler) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.db.Delete(&Reservation{}, id).Error; err != nil {
+	if err := c.repo.Delete(uint(id)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -141,7 +139,7 @@ func (c *ReservationHandler) Delete(ctx *gin.Context) {
 }
 
 func (c *ReservationHandler) Confirm(ctx *gin.Context) {
-	c.updateStatus(ctx, StatusConfirmed)
+	c.UpdateStatus(ctx, domain.StatusConfirmed)
 }
 
 func (c *ReservationHandler) Cancel(ctx *gin.Context) {
@@ -160,16 +158,17 @@ func (c *ReservationHandler) Cancel(ctx *gin.Context) {
 		return
 	}
 
-	var reservation Reservation
-	if err := c.db.First(&reservation, id).Error; err != nil {
+	reservation, err := c.repo.GetByID(uint(id))
+
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Reserva não encontrada"})
 		return
 	}
 
-	reservation.Status = StatusCancelled
+	reservation.Status = domain.StatusCancelled
 	reservation.CancellationReason = input.Reason
 
-	if err := c.db.Save(&reservation).Error; err != nil {
+	if err := c.repo.Update(reservation); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -184,22 +183,22 @@ func (c *ReservationHandler) TakeKeys(ctx *gin.Context) {
 		return
 	}
 
-	var reservation Reservation
-	if err := c.db.First(&reservation, id).Error; err != nil {
+	reservation, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Reserva não encontrada"})
 		return
 	}
 
-	if reservation.Status != StatusConfirmed {
+	if reservation.Status != domain.StatusConfirmed {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "A reserva precisa estar confirmada para retirar as chaves"})
 		return
 	}
 
 	now := time.Now()
 	reservation.KeysTakenAt = &now
-	reservation.Status = StatusKeysTaken
+	reservation.Status = domain.StatusKeysTaken
 
-	if err := c.db.Save(&reservation).Error; err != nil {
+	if err := c.repo.Update(reservation); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -214,22 +213,22 @@ func (c *ReservationHandler) ReturnKeys(ctx *gin.Context) {
 		return
 	}
 
-	var reservation Reservation
-	if err := c.db.First(&reservation, id).Error; err != nil {
+	reservation, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Reserva não encontrada"})
 		return
 	}
 
-	if reservation.Status != StatusKeysTaken {
+	if reservation.Status != domain.StatusKeysTaken {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "As chaves precisam ter sido retiradas primeiro"})
 		return
 	}
 
 	now := time.Now()
 	reservation.KeysReturnedAt = &now
-	reservation.Status = StatusKeysReturned
+	reservation.Status = domain.StatusKeysReturned
 
-	if err := c.db.Save(&reservation).Error; err != nil {
+	if err := c.repo.Update(reservation); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -238,7 +237,7 @@ func (c *ReservationHandler) ReturnKeys(ctx *gin.Context) {
 }
 
 func (c *ReservationHandler) Complete(ctx *gin.Context) {
-	c.updateStatus(ctx, StatusKeysReturned)
+	c.UpdateStatus(ctx, domain.StatusKeysReturned)
 }
 
 func (c *ReservationHandler) ConfirmPayment(ctx *gin.Context) {
@@ -257,24 +256,24 @@ func (c *ReservationHandler) ConfirmPayment(ctx *gin.Context) {
 		return
 	}
 
-	var reservation Reservation
-	if err := c.db.First(&reservation, id).Error; err != nil {
+	reservation, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Reserva não encontrada"})
 		return
 	}
 
-	if reservation.PaymentStatus == PaymentPaid {
+	if reservation.PaymentStatus == domain.PaymentPaid {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Pagamento já foi confirmado anteriormente"})
 		return
 	}
 
 	now := time.Now()
-	reservation.PaymentStatus = PaymentPaid
+	reservation.PaymentStatus = domain.PaymentPaid
 	reservation.PaymentAmount = input.Amount
 	reservation.PaymentDate = &now
-	reservation.Status = StatusConfirmed
+	reservation.Status = domain.StatusConfirmed
 
-	if err := c.db.Save(&reservation).Error; err != nil {
+	if err := c.repo.Update(reservation); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -289,33 +288,36 @@ func (c *ReservationHandler) GetByResident(ctx *gin.Context) {
 		return
 	}
 
-	var reservations []Reservation
-	if err := c.db.Where("resident_id = ?", residentID).Find(&reservations).Error; err != nil {
+	reservations, err := c.repo.GetByResident(uint(residentID))
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, reservations)
 }
 
 func (c *ReservationHandler) GetBySpace(ctx *gin.Context) {
 	space := ctx.Param("space")
 
-	var reservations []Reservation
-	if err := c.db.Where("space = ?", space).Find(&reservations).Error; err != nil {
+	reservations, err := c.repo.GetBySpace(space)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, reservations)
 }
 
 func (c *ReservationHandler) GetByStatus(ctx *gin.Context) {
 	status := ctx.Param("status")
 
-	var reservations []Reservation
-	if err := c.db.Where("status = ?", status).Find(&reservations).Error; err != nil {
+	reservations, err := c.repo.GetByStatus(status)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, reservations)
 }
 
@@ -340,8 +342,8 @@ func (c *ReservationHandler) GetByDateRange(ctx *gin.Context) {
 		return
 	}
 
-	var reservations []Reservation
-	if err := c.db.Where("start_time BETWEEN ? AND ?", start, end).Find(&reservations).Error; err != nil {
+	reservations, err := c.repo.FindByDateRange(start, end)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -349,32 +351,31 @@ func (c *ReservationHandler) GetByDateRange(ctx *gin.Context) {
 }
 
 func (c *ReservationHandler) GetUpcomingReservations(ctx *gin.Context) {
-	var reservations []Reservation
-	if err := c.db.Where("start_time > ? AND status != ?", time.Now(), StatusCancelled).
-		Order("start_time ASC").
-		Find(&reservations).Error; err != nil {
+	reservations, err := c.repo.FindUpcomingReservations()
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, reservations)
 }
 
-func (c *ReservationHandler) updateStatus(ctx *gin.Context, status ReservationStatus) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+func (c *ReservationHandler) UpdateStatus(ctx *gin.Context, status domain.ReservationStatus) {
+	idParam := ctx.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	var reservation Reservation
-	if err := c.db.First(&reservation, id).Error; err != nil {
+	reservation, err := c.repo.GetByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Reserva não encontrada"})
 		return
 	}
 
 	reservation.Status = status
 
-	if err := c.db.Save(&reservation).Error; err != nil {
+	if err := c.repo.Update(reservation); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -382,33 +383,8 @@ func (c *ReservationHandler) updateStatus(ctx *gin.Context, status ReservationSt
 	ctx.JSON(http.StatusOK, reservation)
 }
 
-func (c *ReservationHandler) checkReservationConflict(space SpaceType, startTime, endTime time.Time, excludeID uint) error {
-	var conflictingReservation Reservation
-	query := c.db.Where(
-		"space = ? AND status NOT IN (?) AND ((start_time BETWEEN ? AND ?) OR (end_time BETWEEN ? AND ?) OR (start_time <= ? AND end_time >= ?))",
-		space,
-		[]ReservationStatus{StatusCancelled, StatusKeysReturned},
-		startTime,
-		endTime,
-		startTime,
-		endTime,
-		startTime,
-		endTime,
-	)
-
-	if excludeID > 0 {
-		query = query.Where("id != ?", excludeID)
-	}
-
-	if err := query.First(&conflictingReservation).Error; err == nil {
-		return errors.New("já existe uma reserva para este salão no horário selecionado")
-	}
-
-	return nil
-}
-
 func (c *ReservationHandler) ImportSalonReservations(ctx *gin.Context) {
-	if err := c.importService.ImportSalonReservationsFromCSV(); err != nil {
+	if err := c.importService.ImportReservationsFromCSV(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -416,6 +392,6 @@ func (c *ReservationHandler) ImportSalonReservations(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Salon reservations imported successfully",
+		"message": "Reservas de salão importad com sucesso",
 	})
 }

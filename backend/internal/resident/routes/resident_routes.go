@@ -2,6 +2,7 @@ package handler
 
 import (
 	"portarius/internal/resident/domain"
+	residentHandler "portarius/internal/resident/handler"
 	"portarius/internal/resident/interfaces"
 	"portarius/internal/resident/repository"
 	residentService "portarius/internal/resident/service"
@@ -16,7 +17,7 @@ func ResidentRegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		importer interfaces.ICSVResidentImporter = residentService.NewResidentImportService(db)
 	)
 
-	handler := NewResidentHandler(repo, importer)
+	handler := residentHandler.NewResidentHandler(repo, importer)
 
 	residents := router.Group("/residents")
 	{

@@ -1,12 +1,20 @@
 package reservation
 
 import (
+	"portarius/internal/reservation/domain"
+	reservationHandler "portarius/internal/reservation/handler"
+	"portarius/internal/reservation/repository"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 func RegisterReservationRoutes(router *gin.RouterGroup, db *gorm.DB) {
-	handler := NewReservationHandler(db)
+	var (
+		repo domain.IReservationRepository = repository.NewReservationRepository(db)
+	)
+
+	handler := reservationHandler.NewReservationHandler(repo)
 
 	reservations := router.Group("/reservations")
 	{

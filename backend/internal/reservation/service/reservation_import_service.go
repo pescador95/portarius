@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"portarius/internal/reservation/domain"
 	"strings"
 	"time"
 
@@ -229,28 +230,28 @@ func (s *ReservationImportService) processCSVFile(filePath string) error {
 
 		fmt.Println(data[:10])
 
-		reserva := &Reservation{
+		reserva := &domain.Reservation{
 			ResidentID:    residenteID,
-			Space:         Salon1,
+			Space:         domain.Salon1,
 			StartTime:     time.Date(date.Year(), date.Month(), date.Day(), 8, 0, 0, 0, time.UTC),
 			EndTime:       time.Date(date.Year(), date.Month(), date.Day(), 20, 0, 0, 0, time.UTC),
-			Status:        StatusConfirmed,
-			PaymentStatus: PaymentPaid,
-			PaymentMethod: PaymentMethodBoleto,
+			Status:        domain.StatusConfirmed,
+			PaymentStatus: domain.PaymentPaid,
+			PaymentMethod: domain.PaymentMethodBoleto,
 		}
 
 		if strings.Contains(strings.ToUpper(salao), "2") {
-			reserva.Space = Salon2
+			reserva.Space = domain.Salon2
 		}
 
 		if strings.Contains(strings.ToUpper(formaPagamento), "PIX") {
-			reserva.PaymentMethod = PaymentMethodPix
+			reserva.PaymentMethod = domain.PaymentMethodPix
 		}
 
 		paymentDate := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.UTC)
 		reserva.PaymentDate = &paymentDate
 
-		var existingReservation Reservation
+		var existingReservation domain.Reservation
 		result := s.db.Where("resident_id = ? AND start_time = ? AND end_time = ?",
 			reserva.ResidentID, reserva.StartTime, reserva.EndTime).First(&existingReservation)
 

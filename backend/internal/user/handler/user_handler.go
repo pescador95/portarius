@@ -3,16 +3,16 @@ package user
 import (
 	"net/http"
 	"os"
+	"portarius/internal/user/domain"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 )
 
 type UserHandler struct {
-	db *gorm.DB
+	repo domain.IUserRepository
 }
 
 type LoginRequest struct {
@@ -26,10 +26,9 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func NewUserHandler(db *gorm.DB) *UserHandler {
-	return &UserHandler{db: db}
+func NewUserHandler(repo domain.IUserRepository) *UserHandler {
+	return &UserHandler{repo: repo}
 }
-
 func (c *UserHandler) Register(ctx *gin.Context) {
 	var req RegisterRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -37,13 +36,13 @@ func (c *UserHandler) Register(ctx *gin.Context) {
 		return
 	}
 
-	user := User{
+	user := domain.User{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,
 	}
 
-	if err := c.db.Create(&user).Error; err != nil {
+	if err := c.repo.Create(&user); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar usuário"})
 		return
 	}
@@ -59,8 +58,8 @@ func (c *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	var user User
-	if err := c.db.Where("email = ?", req.Email).First(&user).Error; err != nil {
+	user, err := c.repo.FindByEmail(req.Email)
+	if err != nil || user == nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciais inválidas"})
 		return
 	}
@@ -73,7 +72,7 @@ func (c *UserHandler) Login(ctx *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
 		"role":    user.Role,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -94,8 +93,8 @@ func (c *UserHandler) Login(ctx *gin.Context) {
 }
 
 func (c *UserHandler) GetAll(ctx *gin.Context) {
-	var users []User
-	if err := c.db.Find(&users).Error; err != nil {
+	users, err := c.repo.FindAll()
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -114,14 +113,13 @@ func (c *UserHandler) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	var user User
-	if err := c.db.First(&user, id).Error; err != nil {
+	user, err := c.repo.FindByID(uint(id))
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Usuário não encontrado"})
 		return
 	}
 
 	user.Password = ""
-
 	ctx.JSON(http.StatusOK, user)
 }
 
@@ -132,17 +130,19 @@ func (c *UserHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	var user User
+	var user domain.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	user.ID = uint(id)
-	if err := c.db.Save(&user).Error; err != nil {
+	if err := c.repo.Update(&user); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	user.Password = ""
 	ctx.JSON(http.StatusOK, user)
 }
 
@@ -153,33 +153,10 @@ func (c *UserHandler) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.db.Delete(&User{}, id).Error; err != nil {
+	if err := c.repo.Delete(uint(id)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{"message": "Usuário excluído com sucesso"})
-}
-
-func (c *UserHandler) UsersPage(ctx *gin.Context) {
-	var users []User
-	if err := c.db.Find(&users).Error; err != nil {
-		ctx.HTML(http.StatusInternalServerError, "users.html", gin.H{
-			"Title":       "Usuários",
-			"PageTitle":   "Usuários",
-			"CurrentPage": "users",
-			"Error":       "Erro ao carregar usuários",
-		})
-		return
-	}
-
-	for i := range users {
-		users[i].Password = ""
-	}
-
-	ctx.HTML(http.StatusOK, "users.html", gin.H{
-		"Title":       "Usuários",
-		"PageTitle":   "Usuários",
-		"CurrentPage": "users",
-		"Users":       users,
-	})
 }

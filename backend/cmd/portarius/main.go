@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/user"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
@@ -14,20 +13,22 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	inventoryDomain "portarius/internal/inventory/domain"
-	inventoryHandler "portarius/internal/inventory/handler"
-
-	packageDomain "portarius/internal/package/domain"
-	packageHandler "portarius/internal/package/handler"
-
-	"portarius/internal/reservation"
-
-	residentDomain "portarius/internal/resident/domain"
-	residentHandler "portarius/internal/resident/handler"
-
 	"portarius/middleware"
 
-	userHandler "portarius/internal/user"
+	inventoryDomain "portarius/internal/inventory/domain"
+	inventoryRoutes "portarius/internal/inventory/routes"
+
+	packageDomain "portarius/internal/package/domain"
+	packageRoutes "portarius/internal/package/routes"
+
+	reservationDomain "portarius/internal/reservation/domain"
+	reservationRoutes "portarius/internal/reservation/routes"
+
+	residentDomain "portarius/internal/resident/domain"
+	residentRoutes "portarius/internal/resident/routes"
+
+	userDomain "portarius/internal/user/domain"
+	userRoutes "portarius/internal/user/routes"
 )
 
 func main() {
@@ -54,8 +55,8 @@ func main() {
 		&inventoryDomain.Inventory{},
 		&packageDomain.Package{},
 		&residentDomain.Resident{},
-		&reservation.Reservation{},
-		&user.User{},
+		&reservationDomain.Reservation{},
+		&userDomain.User{},
 	)
 
 	r := gin.Default()
@@ -73,15 +74,15 @@ func main() {
 
 	apiPrefixGroup := r.Group("/api")
 
-	userHandler.RegisterUserRoutes(apiPrefixGroup, db)
+	userRoutes.RegisterUserRoutes(apiPrefixGroup, db)
 
 	apiPrefixGroup.Use(middleware.AuthMiddleware())
 	{
-		inventoryHandler.RegisterInventoryRoutes(apiPrefixGroup, db)
-		residentHandler.ResidentRegisterRoutes(apiPrefixGroup, db)
-		packageHandler.RegisterPackageRoutes(apiPrefixGroup, db)
-		reservation.RegisterReservationRoutes(apiPrefixGroup, db)
-		userHandler.RegisterUserProtectedRoutes(apiPrefixGroup, db)
+		inventoryRoutes.RegisterInventoryRoutes(apiPrefixGroup, db)
+		residentRoutes.ResidentRegisterRoutes(apiPrefixGroup, db)
+		packageRoutes.RegisterPackageRoutes(apiPrefixGroup, db)
+		reservationRoutes.RegisterReservationRoutes(apiPrefixGroup, db)
+		userRoutes.RegisterUserProtectedRoutes(apiPrefixGroup, db)
 	}
 
 	port := os.Getenv("PORT")

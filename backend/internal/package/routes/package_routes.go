@@ -2,6 +2,7 @@ package handler
 
 import (
 	"portarius/internal/package/domain"
+	packageHandler "portarius/internal/package/handler"
 	"portarius/internal/package/repository"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,7 @@ func RegisterPackageRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		repo domain.IPackageRepository = repository.NewPackageRepository(db)
 	)
 
-	handler := NewPackageHandler(repo)
+	handler := packageHandler.NewPackageHandler(repo)
 
 	packages := router.Group("/packages")
 	{

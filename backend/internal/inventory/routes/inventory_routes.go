@@ -2,6 +2,7 @@ package handler
 
 import (
 	"portarius/internal/inventory/domain"
+	inventoryHandler "portarius/internal/inventory/handler"
 	"portarius/internal/inventory/interfaces"
 	"portarius/internal/inventory/repository"
 	inventoryService "portarius/internal/inventory/service"
@@ -17,7 +18,7 @@ func RegisterInventoryRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		importer interfaces.ICSVInventoryImporter = inventoryService.NewInventoryImportService(db)
 	)
 
-	handler := NewInventoryHandler(repo, importer)
+	handler := inventoryHandler.NewInventoryHandler(repo, importer)
 
 	inventory := router.Group("/inventory")
 	{

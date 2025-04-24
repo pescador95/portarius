@@ -1,4 +1,4 @@
-package reservation
+package domain
 
 import (
 	"portarius/internal/holyday"
