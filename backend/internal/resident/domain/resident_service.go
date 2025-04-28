@@ -27,3 +27,11 @@ func (s *ResidentService) DeleteResident(id uint) error {
 func (s *ResidentService) GetAllResidents() ([]Resident, error) {
 	return s.repo.GetAll()
 }
+
+func (s *ResidentService) GetPhoneByReservationID(reservationID uint) (string, error) {
+	return s.repo.GetPhoneByReservationID(reservationID)
+}
+
+func (s *ResidentService) GetPhoneByPackageID(packageID uint) (string, error) {
+	return s.repo.GetPhoneByPackageID(packageID)
+}

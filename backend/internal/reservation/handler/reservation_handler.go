@@ -2,6 +2,8 @@ package reservation
 
 import (
 	"net/http"
+	"portarius/internal/eventbus"
+	reminderDomain "portarius/internal/reminder/domain"
 	"portarius/internal/reservation/domain"
 	"portarius/internal/reservation/interfaces"
 	"strconv"
@@ -77,6 +79,11 @@ func (c *ReservationHandler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	eventbus.Publish("ReservationCreated", eventbus.ReservationCreatedEvent{
+		ReservationID: reservation.ID,
+		Channel:       string(reminderDomain.ReminderChannelWhatsApp),
+	})
 
 	ctx.JSON(http.StatusCreated, reservation)
 }

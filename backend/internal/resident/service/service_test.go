@@ -48,3 +48,41 @@ func TestResidentService_CreateResident(t *testing.T) {
 		assert.NoError(t, err)
 	})
 }
+
+func TestResidentService_GetResidentByID(t *testing.T) {
+	t.Run("should get resident by ID successfully", func(t *testing.T) {
+		ctrl, mockRepo, service := setupTest(t)
+		defer ctrl.Finish()
+
+		res := validResident()
+		res.ID = 1
+
+		mockRepo.EXPECT().
+			GetByID(uint(1)).
+			Return(res, nil)
+
+		result, err := service.GetResidentByID(1)
+		assert.NoError(t, err)
+		assert.Equal(t, res, result)
+	})
+}
+
+func TestResidentService_UpdateResident(t *testing.T) {
+	t.Run("should update resident successfully", func(t *testing.T) {
+		ctrl, mockRepo, service := setupTest(t)
+		defer ctrl.Finish()
+
+		res := validResident()
+		res.ID = 1
+
+		mockRepo.EXPECT().
+			Update(gomock.Any()).
+			DoAndReturn(func(r *domain.Resident) error {
+				assert.Equal(t, "João Silva", r.Name)
+				return nil
+			})
+
+		err := service.UpdateResident(res)
+		assert.NoError(t, err)
+	})
+}

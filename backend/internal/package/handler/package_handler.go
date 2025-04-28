@@ -2,7 +2,9 @@ package handler
 
 import (
 	"net/http"
+	"portarius/internal/eventbus"
 	"portarius/internal/package/domain"
+	reminderDomain "portarius/internal/reminder/domain"
 	"strconv"
 	"time"
 
@@ -53,6 +55,12 @@ func (c *PackageHandler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	eventbus.Publish("PackageCreated", eventbus.PackageCreatedEvent{
+		PackageID: pkg.ID,
+		Channel:   string(reminderDomain.ReminderChannelWhatsApp),
+	})
+
 	ctx.JSON(http.StatusCreated, pkg)
 }
 

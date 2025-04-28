@@ -92,3 +92,29 @@ func (mr *MockIResidentServiceMockRecorder) UpdateResident(arg0 interface{}) *go
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateResident", reflect.TypeOf((*MockIResidentService)(nil).UpdateResident), arg0)
 }
+
+func (m *MockIResidentService) GetPhoneByPackageID(arg0 uint) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhoneByPackageID", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (mr *MockIResidentServiceMockRecorder) GetPhoneByPackageID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhoneByPackageID", reflect.TypeOf((*MockIResidentService)(nil).GetPhoneByPackageID), arg0)
+}
+
+func (m *MockIResidentService) GetPhoneByReservationID(arg0 uint) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhoneByReservationID", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (mr *MockIResidentServiceMockRecorder) GetPhoneByReservationID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhoneByReservationID", reflect.TypeOf((*MockIResidentService)(nil).GetPhoneByReservationID), arg0)
+}

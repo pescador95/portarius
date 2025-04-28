@@ -6,4 +6,6 @@ type IResidentRepository interface {
 	Create(resident *Resident) error
 	Update(resident *Resident) error
 	Delete(id uint) error
+	GetPhoneByReservationID(reservationID uint) (string, error)
+	GetPhoneByPackageID(packageID uint) (string, error)
 }

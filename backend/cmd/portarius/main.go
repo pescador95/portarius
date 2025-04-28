@@ -14,6 +14,12 @@ import (
 
 	"portarius/internal/infra"
 
+	reminderListeners "portarius/internal/reminder/listeners"
+
+	reminderRepository "portarius/internal/reminder/repository"
+
+	residentRepository "portarius/internal/resident/repository"
+
 	inventoryRoutes "portarius/internal/inventory/routes"
 
 	packageRoutes "portarius/internal/package/routes"
@@ -38,6 +44,10 @@ func main() {
 	}
 
 	infra.RunMigrations(db)
+
+	reminderRepo := reminderRepository.NewReminderRepository(db)
+	residentRepo := residentRepository.NewResidentRepository(db)
+	reminderListeners.RegisterReminderListeners(reminderRepo, residentRepo)
 
 	r := gin.Default()
 

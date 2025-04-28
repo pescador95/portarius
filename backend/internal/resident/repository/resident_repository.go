@@ -1,6 +1,7 @@
 package repository
 
 import (
+	packageDomain "portarius/internal/package/domain"
 	reservationDomain "portarius/internal/reservation/domain"
 	"portarius/internal/resident/domain"
 
@@ -44,6 +45,19 @@ func (r *residentRepository) GetPhoneByReservationID(reservationID uint) (string
 	err := r.db.Model(&reservationDomain.Reservation{}).
 		Joins("JOIN residents ON residents.id = reservations.resident_id").
 		Where("reservations.id = ?", reservationID).
+		Select("residents.phone").
+		Scan(&phone).Error
+	if err != nil {
+		return "", err
+	}
+	return phone, nil
+}
+
+func (r *residentRepository) GetPhoneByPackageID(packageID uint) (string, error) {
+	var phone string
+	err := r.db.Model(&packageDomain.Package{}).
+		Joins("JOIN residents ON residents.id = packages.resident_id").
+		Where("packages.id = ?", packageID).
 		Select("residents.phone").
 		Scan(&phone).Error
 	if err != nil {
