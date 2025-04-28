@@ -1,6 +1,7 @@
 package repository
 
 import (
+	reservationDomain "portarius/internal/reservation/domain"
 	"portarius/internal/resident/domain"
 
 	"gorm.io/gorm"
@@ -36,4 +37,17 @@ func (r *residentRepository) Update(resident *domain.Resident) error {
 
 func (r *residentRepository) Delete(id uint) error {
 	return r.db.Delete(&domain.Resident{}, id).Error
+}
+
+func (r *residentRepository) GetPhoneByReservationID(reservationID uint) (string, error) {
+	var phone string
+	err := r.db.Model(&reservationDomain.Reservation{}).
+		Joins("JOIN residents ON residents.id = reservations.resident_id").
+		Where("reservations.id = ?", reservationID).
+		Select("residents.phone").
+		Scan(&phone).Error
+	if err != nil {
+		return "", err
+	}
+	return phone, nil
 }

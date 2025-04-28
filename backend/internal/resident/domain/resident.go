@@ -1,8 +1,6 @@
 package domain
 
 import (
-	"portarius/utils"
-
 	"gorm.io/gorm"
 )
 
@@ -24,24 +22,4 @@ type Resident struct {
 	Apartment    string       `json:"apartment" gorm:"size:2;not null"`
 	Block        string       `json:"block" gorm:"size:1;not null"`
 	ResidentType ResidentType `json:"resident_type" gorm:"not null;default:'INQUILINO'"`
-}
-
-func (r *Resident) BeforeSave(tx *gorm.DB) error {
-	return r.Normalise()
-}
-
-func (r *Resident) BeforeCreate(tx *gorm.DB) error {
-	return r.Normalise()
-}
-
-func (r *Resident) BeforeUpdate(tx *gorm.DB) error {
-	return r.Normalise()
-}
-
-func (r *Resident) Normalise() error {
-	r.Document = utils.KeepOnlyNumbers(r.Document)
-	r.Phone = utils.KeepOnlyNumbers(r.Phone)
-	r.Apartment = utils.KeepOnlyNumbers(r.Apartment)
-	r.Block = utils.GetFirstLetter(r.Block)
-	return nil
 }

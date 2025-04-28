@@ -6,11 +6,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"portarius/internal/reservation/domain"
+
 	"strings"
 	"time"
 
 	"gorm.io/gorm"
+
+	domainReservation "portarius/internal/reservation/domain"
 )
 
 var monthMap = map[string]int{
@@ -230,28 +232,28 @@ func (s *ReservationImportService) processCSVFile(filePath string) error {
 
 		fmt.Println(data[:10])
 
-		reserva := &domain.Reservation{
+		reserva := &domainReservation.Reservation{
 			ResidentID:    residenteID,
-			Space:         domain.Salon1,
+			Space:         domainReservation.Salon1,
 			StartTime:     time.Date(date.Year(), date.Month(), date.Day(), 8, 0, 0, 0, time.UTC),
 			EndTime:       time.Date(date.Year(), date.Month(), date.Day(), 20, 0, 0, 0, time.UTC),
-			Status:        domain.StatusConfirmed,
-			PaymentStatus: domain.PaymentPaid,
-			PaymentMethod: domain.PaymentMethodBoleto,
+			Status:        domainReservation.StatusConfirmed,
+			PaymentStatus: domainReservation.PaymentPaid,
+			PaymentMethod: domainReservation.PaymentMethodBoleto,
 		}
 
 		if strings.Contains(strings.ToUpper(salao), "2") {
-			reserva.Space = domain.Salon2
+			reserva.Space = domainReservation.Salon2
 		}
 
 		if strings.Contains(strings.ToUpper(formaPagamento), "PIX") {
-			reserva.PaymentMethod = domain.PaymentMethodPix
+			reserva.PaymentMethod = domainReservation.PaymentMethodPix
 		}
 
 		paymentDate := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.UTC)
 		reserva.PaymentDate = &paymentDate
 
-		var existingReservation domain.Reservation
+		var existingReservation domainReservation.Reservation
 		result := s.db.Where("resident_id = ? AND start_time = ? AND end_time = ?",
 			reserva.ResidentID, reserva.StartTime, reserva.EndTime).First(&existingReservation)
 

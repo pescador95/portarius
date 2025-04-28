@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"portarius/internal/resident/domain"
+	residentDomain "portarius/internal/resident/domain"
 	"time"
 
 	"gorm.io/gorm"
@@ -17,13 +17,13 @@ const (
 
 type Package struct {
 	gorm.Model
-	Quantity      int              `json:"quantity" gorm:"not null";default:1`
-	ResidentID    uint             `json:"resident_id" gorm:"not null"`
-	Resident      *domain.Resident `json:"resident" gorm:"foreignKey:ResidentID"`
-	Description   string           `json:"description"`
-	Status        PackageStatus    `json:"status" gorm:"not null;default:'PENDENTE'"`
-	DeliveredToID uint             `json:"delivered_to_id"`
-	DeliveredTo   *domain.Resident `json:"delivered_to" gorm:"foreignKey:DeliveredToID"`
-	ReceivedAt    time.Time        `json:"received_at"`
-	DeliveredAt   time.Time        `json:"delivered_at"`
+	Quantity      int                      `json:"quantity" gorm:"not null";default:1`
+	ResidentID    uint                     `json:"resident_id" gorm:"not null"`
+	Resident      *residentDomain.Resident `json:"resident" gorm:"foreignKey:ResidentID"`
+	Description   string                   `json:"description"`
+	Status        PackageStatus            `json:"status" gorm:"not null;default:'PENDENTE'"`
+	DeliveredToID uint                     `json:"delivered_to_id"`
+	DeliveredTo   *residentDomain.Resident `json:"delivered_to" gorm:"foreignKey:DeliveredToID"`
+	ReceivedAt    time.Time                `json:"received_at"`
+	DeliveredAt   time.Time                `json:"delivered_at"`
 }
