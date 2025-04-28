@@ -12,4 +12,6 @@ type IReminderRepository interface {
 	GetByChannel(channel string) ([]Reminder, error)
 	GetByRecipient(recipient string) ([]Reminder, error)
 	GetByPendingStatus() ([]Reminder, error)
+	GetPendingRemindersFromReservations() ([]Reminder, error)
+	GetPendingRemindersFromPackages() ([]Reminder, error)
 }

@@ -17,6 +17,8 @@ import (
 	residentDomain "portarius/internal/resident/domain"
 
 	userDomain "portarius/internal/user/domain"
+
+	reminderDomain "portarius/internal/reminder/domain"
 )
 
 func ConnectDB() (*gorm.DB, error) {
@@ -44,6 +46,7 @@ func RunMigrations(db *gorm.DB) {
 		&residentDomain.Resident{},
 		&reservationDomain.Reservation{},
 		&userDomain.User{},
+		&reminderDomain.Reminder{},
 	)
 	if err != nil {
 		log.Fatal("Failed to run migrations:", err)

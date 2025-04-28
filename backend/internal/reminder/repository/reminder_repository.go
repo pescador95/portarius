@@ -75,3 +75,19 @@ func (r *reminderRepository) GetByPendingStatus() ([]domain.Reminder, error) {
 		domain.ReminderStatusFailed}).Find(&reminders).Error
 	return reminders, err
 }
+
+func (r *reminderRepository) GetPendingRemindersFromReservations() ([]domain.Reminder, error) {
+	var reminders []domain.Reminder
+	err := r.db.Where("status IN ? AND reservation_id IS NOT NULL", []domain.ReminderStatus{
+		domain.ReminderStatusPending,
+		domain.ReminderStatusFailed}).Find(&reminders).Error
+	return reminders, err
+}
+
+func (r *reminderRepository) GetPendingRemindersFromPackages() ([]domain.Reminder, error) {
+	var reminders []domain.Reminder
+	err := r.db.Where("status IN ? AND package_id IS NOT NULL", []domain.ReminderStatus{
+		domain.ReminderStatusPending,
+		domain.ReminderStatusFailed}).Find(&reminders).Error
+	return reminders, err
+}

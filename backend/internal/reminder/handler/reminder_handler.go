@@ -177,3 +177,23 @@ func (h *ReminderHandler) GetByPendingStatus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, reminders)
 }
+
+func (h *ReminderHandler) GetPendingRemindersFromReservations(c *gin.Context) {
+	reminders, err := h.repo.GetPendingRemindersFromReservations()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, reminders)
+}
+
+func (h *ReminderHandler) GetPendingRemindersFromPackages(c *gin.Context) {
+	reminders, err := h.repo.GetPendingRemindersFromPackages()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, reminders)
+}
