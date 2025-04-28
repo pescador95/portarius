@@ -80,10 +80,13 @@ func (c *ReservationHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	eventbus.Publish("ReservationCreated", eventbus.ReservationCreatedEvent{
-		ReservationID: reservation.ID,
-		Channel:       string(reminderDomain.ReminderChannelWhatsApp),
-	})
+	if reservation.Status == domain.StatusPending || reservation.Status == domain.StatusConfirmed {
+
+		eventbus.Publish("ReservationCreated", eventbus.ReservationCreatedEvent{
+			ReservationID: reservation.ID,
+			Channel:       string(reminderDomain.ReminderChannelWhatsApp),
+		})
+	}
 
 	ctx.JSON(http.StatusCreated, reservation)
 }
