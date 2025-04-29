@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,26 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
+		if len(authHeader) > 1000 {
+			c.JSON(http.StatusRequestHeaderFieldsTooLarge, gin.H{"error": "Header muito grande"})
+			c.Abort()
+			return
+		}
+
+		if !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token malformado"})
+			c.Abort()
+			return
+		}
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		parts := strings.Split(tokenString, ".")
+		if len(parts) != 3 {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token malformado"})
+			c.Abort()
+			return
+		}
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_SECRET")), nil
@@ -38,8 +58,23 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		expFloat, ok := claims["exp"].(float64)
+
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token inválido"})
+			c.Abort()
+			return
+		}
+
+		if time.Now().Unix() > int64(expFloat) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+			c.Abort()
+			return
+		}
+
 		c.Set("user_id", claims["user_id"])
 		c.Set("role", claims["role"])
+		c.Set("exp", claims["exp"])
 
 		c.Next()
 	}
