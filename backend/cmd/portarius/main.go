@@ -15,10 +15,15 @@ import (
 	"portarius/internal/infra"
 
 	reminderListeners "portarius/internal/reminder/listeners"
+	"portarius/internal/reminder/scheduler"
 
 	reminderRepository "portarius/internal/reminder/repository"
 
 	residentRepository "portarius/internal/resident/repository"
+
+	packageRepository "portarius/internal/package/repository"
+
+	reservationRepository "portarius/internal/reservation/repository"
 
 	inventoryRoutes "portarius/internal/inventory/routes"
 
@@ -29,6 +34,9 @@ import (
 	residentRoutes "portarius/internal/resident/routes"
 
 	userRoutes "portarius/internal/user/routes"
+
+	whatsappDomain "portarius/internal/whatsapp/domain"
+	"portarius/internal/whatsapp/handler"
 )
 
 func main() {
@@ -47,7 +55,18 @@ func main() {
 
 	reminderRepo := reminderRepository.NewReminderRepository(db)
 	residentRepo := residentRepository.NewResidentRepository(db)
-	reminderListeners.RegisterReminderListeners(reminderRepo, residentRepo)
+	packageRepo := packageRepository.NewPackageRepository(db)
+	reservationRepo := reservationRepository.NewReservationRepository(db)
+
+	whatsappService := whatsappDomain.NewWhatsAppService()
+
+	whatsappHandler := handler.NewWhatsAppHandler(whatsappService)
+
+	reminderListeners.RegisterReminderListeners(reminderRepo, residentRepo, packageRepo, reservationRepo, whatsappHandler)
+
+	reminderScheduler := scheduler.NewReminderScheduler(reminderRepo)
+
+	reminderScheduler.Run()
 
 	r := gin.Default()
 

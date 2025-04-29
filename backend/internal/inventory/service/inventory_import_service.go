@@ -96,7 +96,7 @@ func (s *InventoryImportService) processCSVFile(filePath string) error {
 			Name:          strings.TrimSpace(record[7]),
 			Description:   strings.TrimSpace(record[8]),
 			Quantity:      1,
-			OwnerID:       resident.ID,
+			OwnerID:       &resident.ID,
 			InventoryType: domain.InventoryTypePet,
 		}
 

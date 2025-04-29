@@ -208,7 +208,7 @@ func (s *ReservationImportService) processCSVFile(filePath string) error {
 			continue
 		}
 
-		residenteID, ok := residentMap[unidade]
+		residentID, ok := residentMap[unidade]
 		if !ok {
 			log.Printf("Residente não encontrado para unidade: %s", unidade)
 			ignorados++
@@ -233,7 +233,7 @@ func (s *ReservationImportService) processCSVFile(filePath string) error {
 		fmt.Println(data[:10])
 
 		reserva := &domainReservation.Reservation{
-			ResidentID:    residenteID,
+			ResidentID:    &residentID,
 			Space:         domainReservation.Salon1,
 			StartTime:     time.Date(date.Year(), date.Month(), date.Day(), 8, 0, 0, 0, time.UTC),
 			EndTime:       time.Date(date.Year(), date.Month(), date.Day(), 20, 0, 0, 0, time.UTC),

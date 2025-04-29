@@ -18,13 +18,13 @@ func NewReservationRepository(db *gorm.DB) domain.IReservationRepository {
 
 func (r *reservationRepository) GetAll() ([]domain.Reservation, error) {
 	var reservations []domain.Reservation
-	err := r.db.Preload("Resident").Preload("Resident").Find(&reservations).Error
+	err := r.db.Preload("Resident").Find(&reservations).Error
 	return reservations, err
 }
 
 func (r *reservationRepository) GetByID(id uint) (*domain.Reservation, error) {
 	var reservation domain.Reservation
-	err := r.db.Preload("Resident").Preload("Resident").First(&reservation, id).Error
+	err := r.db.Preload("Resident").First(&reservation, id).Error
 	return &reservation, err
 }
 

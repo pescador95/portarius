@@ -22,7 +22,7 @@ func (r *packageRepository) GetAll() ([]domain.Package, error) {
 
 func (r *packageRepository) GetByID(id uint) (*domain.Package, error) {
 	var pkg domain.Package
-	err := r.db.First(&pkg, id).Error
+	err := r.db.Preload("Resident").First(&pkg, id).Error
 	return &pkg, err
 }
 

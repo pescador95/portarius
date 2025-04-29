@@ -14,6 +14,7 @@ type WhatsAppService struct {
 }
 
 type WhatsAppMessage struct {
+	ReminderID       uint
 	MessagingProduct string `json:"messaging_product"`
 	To               string `json:"to"`
 	Type             string `json:"type"`
@@ -57,11 +58,13 @@ func NewWhatsAppService() *WhatsAppService {
 func (s *WhatsAppService) SendMessage(message WhatsAppMessage) error {
 	jsonData, err := json.Marshal(message)
 	if err != nil {
+		message.PublishReminderFailedEvent()
 		return fmt.Errorf("error marshaling message: %v", err)
 	}
 
 	req, err := http.NewRequest("POST", s.apiBaseURL+"/messages", bytes.NewBuffer(jsonData))
 	if err != nil {
+		message.PublishReminderFailedEvent()
 		return fmt.Errorf("error creating request: %v", err)
 	}
 
@@ -71,13 +74,16 @@ func (s *WhatsAppService) SendMessage(message WhatsAppMessage) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
+		message.PublishReminderFailedEvent()
 		return fmt.Errorf("error sending message: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		message.PublishReminderFailedEvent()
 		return fmt.Errorf("error response from WhatsApp API: %d", resp.StatusCode)
 	}
 
+	message.PublishReminderSentEvent()
 	return nil
 }

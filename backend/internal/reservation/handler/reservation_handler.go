@@ -48,11 +48,14 @@ func (c *ReservationHandler) GetByID(ctx *gin.Context) {
 
 func (c *ReservationHandler) Create(ctx *gin.Context) {
 	var input struct {
-		ResidentID  uint             `json:"resident_id" binding:"required"`
-		Space       domain.SpaceType `json:"space" binding:"required"`
-		StartTime   time.Time        `json:"start_time" binding:"required"`
-		EndTime     time.Time        `json:"end_time" binding:"required"`
-		Description string           `json:"description"`
+		ResidentID    *uint            `json:"resident_id" binding:"required"`
+		Space         domain.SpaceType `json:"space" binding:"required"`
+		StartTime     time.Time        `json:"start_time" binding:"required"`
+		EndTime       time.Time        `json:"end_time" binding:"required"`
+		Description   string           `json:"description"`
+		PaymentMethod string           `json:"payment_method" binding:"required"`
+		PaymentDate   *time.Time       `json:"payment_date"`
+		KeysTakenAt   *time.Time       `json:"keys_taken_at"`
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -73,6 +76,8 @@ func (c *ReservationHandler) Create(ctx *gin.Context) {
 		Description:   input.Description,
 		Status:        domain.StatusPending,
 		PaymentStatus: domain.PaymentPending,
+		PaymentMethod: domain.PaymentMethod(input.PaymentMethod),
+		PaymentDate:   input.PaymentDate,
 	}
 
 	if err := c.repo.Create(&reservation); err != nil {
@@ -82,9 +87,10 @@ func (c *ReservationHandler) Create(ctx *gin.Context) {
 
 	if reservation.Status == domain.StatusPending || reservation.Status == domain.StatusConfirmed {
 
-		eventbus.Publish("ReservationCreated", eventbus.ReservationCreatedEvent{
-			ReservationID: reservation.ID,
+		eventbus.Publish("ReservationCreated", &eventbus.ReservationCreatedEvent{
+			ReservationID: &reservation.ID,
 			Channel:       string(reminderDomain.ReminderChannelWhatsApp),
+			StartTime:     reservation.StartTime,
 		})
 	}
 

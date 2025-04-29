@@ -46,7 +46,7 @@ const (
 
 type Reservation struct {
 	gorm.Model
-	ResidentID    uint                     `json:"resident_id"`
+	ResidentID    *uint                    `json:"resident_id"`
 	Resident      *residentDomain.Resident `json:"resident" gorm:"foreignKey:ResidentID"`
 	Space         SpaceType                `json:"space" gorm:"not null;type:varchar(10);default:'SALAO_1'"`
 	StartTime     time.Time                `json:"start_time" gorm:"not null"`

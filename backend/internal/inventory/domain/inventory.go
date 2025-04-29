@@ -22,7 +22,7 @@ type Inventory struct {
 	Name          string           `json:"name" gorm:"not null"`
 	Description   string           `json:"description"`
 	Quantity      int              `json:"quantity" gorm:"not null"`
-	OwnerID       uint             `json:"owner_id" gorm:"not null"`
+	OwnerID       *uint            `json:"owner_id" gorm:"not null"`
 	Owner         *domain.Resident `json:"owner" gorm:"foreignKey:OwnerID"`
 	LastUpdated   time.Time        `json:"last_updated"`
 	InventoryType InventoryType    `json:"inventory_type"`

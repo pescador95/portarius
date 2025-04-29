@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type IReminderRepository interface {
 	Create(pkg *Reminder) error
 	Update(pkg *Reminder) error
@@ -14,4 +16,5 @@ type IReminderRepository interface {
 	GetByPendingStatus() ([]Reminder, error)
 	GetPendingRemindersFromReservations() ([]Reminder, error)
 	GetPendingRemindersFromPackages() ([]Reminder, error)
+	GetPendingRemindersFromReservationsForToday(now time.Time) ([]Reminder, error)
 }

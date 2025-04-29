@@ -2,6 +2,7 @@ package repository
 
 import (
 	"portarius/internal/reminder/domain"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -10,7 +11,7 @@ type reminderRepository struct {
 	db *gorm.DB
 }
 
-func NewReminderRepository(db *gorm.DB) *reminderRepository {
+func NewReminderRepository(db *gorm.DB) domain.IReminderRepository {
 	return &reminderRepository{db: db}
 }
 
@@ -89,5 +90,25 @@ func (r *reminderRepository) GetPendingRemindersFromPackages() ([]domain.Reminde
 	err := r.db.Where("status IN ? AND package_id IS NOT NULL", []domain.ReminderStatus{
 		domain.ReminderStatusPending,
 		domain.ReminderStatusFailed}).Find(&reminders).Error
+	return reminders, err
+}
+
+func (r *reminderRepository) GetPendingRemindersFromReservationsForToday(now time.Time) ([]domain.Reminder, error) {
+	var reminders []domain.Reminder
+
+	startOfWindow := time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, now.Location())
+	endOfWindow := startOfWindow.Add(time.Minute)
+
+	err := r.db.
+		Where("status IN ? AND reservation_id IS NOT NULL AND scheduled_at >= ? AND scheduled_at < ?",
+			[]domain.ReminderStatus{
+				domain.ReminderStatusPending,
+				domain.ReminderStatusFailed,
+			},
+			startOfWindow,
+			endOfWindow,
+		).
+		Find(&reminders).Error
+
 	return reminders, err
 }

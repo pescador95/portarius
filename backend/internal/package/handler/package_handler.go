@@ -58,8 +58,8 @@ func (c *PackageHandler) Create(ctx *gin.Context) {
 
 	if pkg.Status == domain.PackagePending {
 
-		eventbus.Publish("PackageCreated", eventbus.PackageCreatedEvent{
-			PackageID: pkg.ID,
+		eventbus.Publish("PackageCreated", &eventbus.PackageCreatedEvent{
+			PackageID: &pkg.ID,
 			Channel:   string(reminderDomain.ReminderChannelWhatsApp),
 		})
 	}

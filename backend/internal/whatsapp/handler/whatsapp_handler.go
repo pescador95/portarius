@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"portarius/internal/whatsapp/domain"
 )
 
@@ -9,14 +8,15 @@ type WhatsAppHandler struct {
 	WhatsAppService *domain.WhatsAppService
 }
 
-func NewWhatsAppHandler(service *domain.WhatsAppService) *WhatsAppHandler {
+func NewWhatsAppHandler(service *domain.WhatsAppService) domain.IWhatsAppHandler {
 	return &WhatsAppHandler{
 		WhatsAppService: service,
 	}
 }
 
-func (h *WhatsAppHandler) SendReservationKeyReminder(phone, name, hall string) error {
+func (h *WhatsAppHandler) SendReservationKeyReminder(reminderId uint, phone, name, hall string) error {
 	message := domain.WhatsAppMessage{
+		ReminderID:       reminderId,
 		MessagingProduct: "whatsapp",
 		To:               phone,
 		Type:             "template",
@@ -46,9 +46,9 @@ func (h *WhatsAppHandler) SendReservationKeyReminder(phone, name, hall string) e
 	return h.WhatsAppService.SendMessage(message)
 }
 
-func (h *WhatsAppHandler) SendPackageNotification(phone, name string) error {
-	fmt.Println("Sending package notification to:", phone, "for resident:", name)
+func (h *WhatsAppHandler) SendPackageNotification(reminderId uint, phone, name string) error {
 	message := domain.WhatsAppMessage{
+		ReminderID:       reminderId,
 		MessagingProduct: "whatsapp",
 		To:               phone,
 		Type:             "template",
