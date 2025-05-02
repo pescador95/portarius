@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"portarius/internal/infra"
 	"portarius/internal/reservation/domain"
 	"time"
 
@@ -16,9 +17,9 @@ func NewReservationRepository(db *gorm.DB) domain.IReservationRepository {
 	return &reservationRepository{db: db}
 }
 
-func (r *reservationRepository) GetAll() ([]domain.Reservation, error) {
+func (r *reservationRepository) GetAll(page, pageSize int) ([]domain.Reservation, error) {
 	var reservations []domain.Reservation
-	err := r.db.Preload("Resident").Find(&reservations).Error
+	err := r.db.Preload("Resident").Scopes(infra.Paginate(page, pageSize)).Find(&reservations).Error
 	return reservations, err
 }
 

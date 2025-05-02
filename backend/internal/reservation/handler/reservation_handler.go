@@ -22,7 +22,9 @@ func NewReservationHandler(repo domain.IReservationRepository) *ReservationHandl
 }
 
 func (c *ReservationHandler) GetAll(ctx *gin.Context) {
-	reservations, err := c.repo.GetAll()
+	page, err := strconv.Atoi(ctx.Query("page"))
+	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
+	reservations, err := c.repo.GetAll(page, pageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

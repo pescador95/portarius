@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"portarius/internal/infra"
 	"portarius/internal/package/domain"
 
 	"gorm.io/gorm"
@@ -14,9 +15,9 @@ func NewPackageRepository(db *gorm.DB) domain.IPackageRepository {
 	return &packageRepository{db: db}
 }
 
-func (r *packageRepository) GetAll() ([]domain.Package, error) {
+func (r *packageRepository) GetAll(page, pageSize int) ([]domain.Package, error) {
 	var packages []domain.Package
-	err := r.db.Find(&packages).Error
+	err := r.db.Scopes(infra.Paginate(page, pageSize)).Find(&packages).Error
 	return packages, err
 }
 

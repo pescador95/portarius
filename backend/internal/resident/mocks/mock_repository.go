@@ -54,7 +54,7 @@ func (mr *MockIResidentRepositoryMockRecorder) Delete(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIResidentRepository)(nil).Delete), arg0)
 }
 
-func (m *MockIResidentRepository) GetAll() ([]residentDomain.Resident, error) {
+func (m *MockIResidentRepository) GetAll(page, pageSize int) ([]residentDomain.Resident, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll")
 	ret0, _ := ret[0].([]residentDomain.Resident)

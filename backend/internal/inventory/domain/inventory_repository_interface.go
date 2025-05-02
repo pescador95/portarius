@@ -1,7 +1,7 @@
 package domain
 
 type IInventoryRepository interface {
-	GetAll() ([]Inventory, error)
+	GetAll(page, pageSize int) ([]Inventory, error)
 	GetByID(id uint) (*Inventory, error)
 	Create(inventory *Inventory) error
 	Update(inventory *Inventory) error

@@ -93,7 +93,9 @@ func (c *UserHandler) Login(ctx *gin.Context) {
 }
 
 func (c *UserHandler) GetAll(ctx *gin.Context) {
-	users, err := c.repo.FindAll()
+	page, err := strconv.Atoi(ctx.Query("page"))
+	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
+	users, err := c.repo.GetAll(page, pageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

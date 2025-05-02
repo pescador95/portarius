@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"portarius/internal/infra"
 	packageDomain "portarius/internal/package/domain"
 	reservationDomain "portarius/internal/reservation/domain"
 	"portarius/internal/resident/domain"
@@ -16,9 +17,9 @@ func NewResidentRepository(db *gorm.DB) domain.IResidentRepository {
 	return &residentRepository{db: db}
 }
 
-func (r *residentRepository) GetAll() ([]domain.Resident, error) {
+func (r *residentRepository) GetAll(page, pageSize int) ([]domain.Resident, error) {
 	var residents []domain.Resident
-	err := r.db.Find(&residents).Error
+	err := r.db.Scopes(infra.Paginate(page, pageSize)).Find(&residents).Error
 	return residents, err
 }
 

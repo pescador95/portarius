@@ -24,6 +24,6 @@ func (s *InventoryService) DeleteInventory(id uint) error {
 	return s.repo.Delete(id)
 }
 
-func (s *InventoryService) GetAllInventory() ([]Inventory, error) {
-	return s.repo.GetAll()
+func (s *InventoryService) GetAllInventory(page, pageSize int) ([]Inventory, error) {
+	return s.repo.GetAll(page, pageSize)
 }

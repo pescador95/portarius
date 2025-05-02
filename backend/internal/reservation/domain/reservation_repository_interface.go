@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type IReservationRepository interface {
-	GetAll() ([]Reservation, error)
+	GetAll(page, pageSize int) ([]Reservation, error)
 	GetByID(id uint) (*Reservation, error)
 	Create(reservation *Reservation) error
 	Update(reservation *Reservation) error

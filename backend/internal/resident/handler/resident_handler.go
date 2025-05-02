@@ -23,7 +23,9 @@ func NewResidentHandler(repo domain.IResidentRepository, importer interfaces.ICS
 }
 
 func (c *ResidentHandler) GetAll(ctx *gin.Context) {
-	residents, err := c.repo.GetAll()
+	page, err := strconv.Atoi(ctx.Query("page"))
+	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
+	residents, err := c.repo.GetAll(page, pageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

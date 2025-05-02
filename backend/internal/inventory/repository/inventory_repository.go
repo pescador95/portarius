@@ -3,6 +3,8 @@ package repository
 import (
 	"portarius/internal/inventory/domain"
 
+	infra "portarius/internal/infra"
+
 	"gorm.io/gorm"
 )
 
@@ -14,9 +16,9 @@ func NewInventoryRepository(db *gorm.DB) domain.IInventoryRepository {
 	return &inventoryRepository{db: db}
 }
 
-func (r *inventoryRepository) GetAll() ([]domain.Inventory, error) {
+func (r *inventoryRepository) GetAll(page, pageSize int) ([]domain.Inventory, error) {
 	var inventories []domain.Inventory
-	err := r.db.Find(&inventories).Error
+	err := r.db.Scopes(infra.Paginate(page, pageSize)).Find(&inventories).Error
 	return inventories, err
 }
 

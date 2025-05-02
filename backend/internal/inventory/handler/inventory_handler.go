@@ -22,7 +22,9 @@ func NewInventoryHandler(repo domain.IInventoryRepository, importer interfaces.I
 }
 
 func (c *InventoryHandler) GetAll(ctx *gin.Context) {
-	items, err := c.repo.GetAll()
+	page, err := strconv.Atoi(ctx.Query("page"))
+	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
+	items, err := c.repo.GetAll(page, pageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

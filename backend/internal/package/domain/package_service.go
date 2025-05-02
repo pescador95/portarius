@@ -24,8 +24,8 @@ func (s *PackageService) DeletePackage(id uint) error {
 	return s.repo.Delete(id)
 }
 
-func (s *PackageService) GetAllPackages() ([]Package, error) {
-	return s.repo.GetAll()
+func (s *PackageService) GetAllPackages(page, pageSize int) ([]Package, error) {
+	return s.repo.GetAll(page, pageSize)
 }
 
 func (s *PackageService) MarkAsDelivered(id uint) error {

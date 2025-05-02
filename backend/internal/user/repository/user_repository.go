@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"portarius/internal/infra"
 	"portarius/internal/user/domain"
 
 	"gorm.io/gorm"
@@ -24,9 +25,9 @@ func (r *userRepository) FindByEmail(email string) (*domain.User, error) {
 	return &user, err
 }
 
-func (r *userRepository) FindAll() ([]domain.User, error) {
+func (r *userRepository) GetAll(page, pageSize int) ([]domain.User, error) {
 	var users []domain.User
-	err := r.db.Find(&users).Error
+	err := r.db.Scopes(infra.Paginate(page, pageSize)).Find(&users).Error
 	return users, err
 }
 

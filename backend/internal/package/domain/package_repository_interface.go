@@ -1,7 +1,7 @@
 package domain
 
 type IPackageRepository interface {
-	GetAll() ([]Package, error)
+	GetAll(page, pageSize int) ([]Package, error)
 	GetByID(id uint) (*Package, error)
 	Create(pkg *Package) error
 	Update(pkg *Package) error

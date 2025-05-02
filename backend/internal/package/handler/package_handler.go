@@ -20,7 +20,9 @@ func NewPackageHandler(repo domain.IPackageRepository) *PackageHandler {
 }
 
 func (c *PackageHandler) GetAll(ctx *gin.Context) {
-	packages, err := c.repo.GetAll()
+	page, err := strconv.Atoi(ctx.Query("page"))
+	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
+	packages, err := c.repo.GetAll(page, pageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
