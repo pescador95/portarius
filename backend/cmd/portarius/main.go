@@ -35,6 +35,8 @@ import (
 
 	userRoutes "portarius/internal/user/routes"
 
+	reminderRoutes "portarius/internal/reminder/routes"
+
 	whatsappDomain "portarius/internal/whatsapp/domain"
 	"portarius/internal/whatsapp/handler"
 )
@@ -92,6 +94,7 @@ func main() {
 		packageRoutes.RegisterPackageRoutes(apiPrefixGroup, db)
 		reservationRoutes.RegisterReservationRoutes(apiPrefixGroup, db)
 		userRoutes.RegisterUserProtectedRoutes(apiPrefixGroup, db)
+		reminderRoutes.RegisterReminderProtectedRoutes(apiPrefixGroup, db)
 	}
 
 	port := os.Getenv("PORT")

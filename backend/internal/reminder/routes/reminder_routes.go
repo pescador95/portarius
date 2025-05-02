@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterReminderRoutes(router *gin.RouterGroup, db *gorm.DB) {
+func RegisterReminderProtectedRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	var (
 		repo domain.IReminderRepository = repository.NewReminderRepository(db)
 	)
@@ -29,5 +29,7 @@ func RegisterReminderRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		reminders.GET("/channel/:channel", handler.GetByChannel)
 		reminders.GET("/recipient/:recipient", handler.GetByRecipient)
 		reminders.GET("/pending", handler.GetByPendingStatus)
+		reminders.GET("/reminderChannel", handler.ListReminderChannel)
+		reminders.GET("/reminderStatus", handler.ListReminderStatus)
 	}
 }

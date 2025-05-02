@@ -197,3 +197,28 @@ func (h *ReminderHandler) GetPendingRemindersFromPackages(c *gin.Context) {
 
 	c.JSON(http.StatusOK, reminders)
 }
+
+func (h *ReminderHandler) ListReminderChannel(c *gin.Context) {
+	reminderChannels := []domain.ReminderChannel{
+		domain.ReminderChannelWhatsApp,
+		domain.ReminderChannelEmail,
+		domain.ReminderChannelSMS,
+		domain.ReminderChannelTelegram,
+		domain.ReminderChannelInstagram,
+		domain.ReminderChannelFacebook,
+		domain.ReminderChannelDiscord,
+	}
+
+	c.JSON(http.StatusOK, reminderChannels)
+}
+
+func (h *ReminderHandler) ListReminderStatus(c *gin.Context) {
+	reminderStatuses := []domain.ReminderStatus{
+		domain.ReminderStatusPending,
+		domain.ReminderStatusSent,
+		domain.ReminderStatusFailed,
+		domain.ReminderStatusCancelled,
+	}
+
+	c.JSON(http.StatusOK, reminderStatuses)
+}
