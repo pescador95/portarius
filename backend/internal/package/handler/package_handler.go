@@ -147,3 +147,13 @@ func (c *PackageHandler) MarkAsLost(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, pkg)
 }
+
+func (c *PackageHandler) ListPackageStatus(ctx *gin.Context) {
+	status := []domain.PackageStatus{
+		domain.PackagePending,
+		domain.PackageDelivered,
+		domain.PackageLost,
+	}
+
+	ctx.JSON(http.StatusOK, status)
+}

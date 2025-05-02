@@ -25,5 +25,6 @@ func RegisterPackageRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		packages.DELETE("/:id", handler.Delete)
 		packages.PUT("/:id/deliver", handler.MarkAsDelivered)
 		packages.PUT("/:id/lost", handler.MarkAsLost)
+		packages.GET("/status", handler.ListPackageStatus)
 	}
 }
