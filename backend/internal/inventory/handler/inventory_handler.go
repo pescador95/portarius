@@ -108,3 +108,14 @@ func (c *InventoryHandler) ImportPets(ctx *gin.Context) {
 		"message": "Pets importados com sucesso",
 	})
 }
+
+func (c *InventoryHandler) ListInventoryTypes(ctx *gin.Context) {
+	types := []domain.InventoryType{
+		domain.InventoryTypeCar,
+		domain.InventoryTypeBike,
+		domain.InventoryTypeBicycle,
+		domain.InventoryTypeScooter,
+		domain.InventoryTypePet,
+	}
+	ctx.JSON(http.StatusOK, types)
+}
