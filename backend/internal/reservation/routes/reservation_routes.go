@@ -38,5 +38,9 @@ func RegisterReservationRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		reservations.GET("/upcoming", handler.GetUpcomingReservations)
 
 		reservations.POST("/import-salon", handler.ImportSalonReservations)
+		reservations.GET("/reservationStatus", handler.ListReservationStatus)
+		reservations.GET("/spaceTypes", handler.ListSpaceTypes)
+		reservations.GET("/paymentMethods", handler.ListPaymentMethods)
+		reservations.GET("/paymentStatuses", handler.ListPaymentStatuses)
 	}
 }

@@ -413,3 +413,43 @@ func (c *ReservationHandler) ImportSalonReservations(ctx *gin.Context) {
 		"message": "Reservas de salão importad com sucesso",
 	})
 }
+
+func (c *ReservationHandler) ListReservationStatus(ctx *gin.Context) {
+	reservationStatus := []domain.ReservationStatus{
+		domain.StatusPending,
+		domain.StatusConfirmed,
+		domain.StatusCancelled,
+		domain.StatusKeysTaken,
+		domain.StatusKeysReturned,
+	}
+
+	ctx.JSON(http.StatusOK, reservationStatus)
+}
+
+func (c *ReservationHandler) ListSpaceTypes(ctx *gin.Context) {
+	spaceTypes := []domain.SpaceType{
+		domain.Salon1,
+		domain.Salon2,
+	}
+
+	ctx.JSON(http.StatusOK, spaceTypes)
+}
+
+func (c *ReservationHandler) ListPaymentMethods(ctx *gin.Context) {
+	paymentMethods := []domain.PaymentMethod{
+		domain.PaymentMethodPix,
+		domain.PaymentMethodBoleto,
+	}
+
+	ctx.JSON(http.StatusOK, paymentMethods)
+}
+
+func (c *ReservationHandler) ListPaymentStatuses(ctx *gin.Context) {
+	paymentStatuses := []domain.PaymentStatus{
+		domain.PaymentPending,
+		domain.PaymentPaid,
+		domain.PaymentRefunded,
+	}
+
+	ctx.JSON(http.StatusOK, paymentStatuses)
+}
