@@ -103,3 +103,13 @@ func (c *ResidentHandler) ImportResidents(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Moradores importados com sucesso"})
 }
+
+func (c *ResidentHandler) ListResidentType(ctx *gin.Context) {
+	residentTypes := []domain.ResidentType{
+		domain.Tenant,
+		domain.Owner,
+		domain.Krum,
+		domain.NotResident,
+	}
+	ctx.JSON(http.StatusOK, residentTypes)
+}

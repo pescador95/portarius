@@ -27,5 +27,6 @@ func ResidentRegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		residents.PUT("/:id", handler.Update)
 		residents.DELETE("/:id", handler.Delete)
 		residents.POST("/import", handler.ImportResidents)
+		residents.GET("/residentType", handler.ListResidentType)
 	}
 }
