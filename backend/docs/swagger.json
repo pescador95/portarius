@@ -211,7 +211,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "List inventory types",
+                "description": "List avaliable inventory types",
                 "consumes": [
                     "application/json"
                 ],
@@ -398,6 +398,427 @@
                     }
                 }
             }
+        },
+        "/package": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get paginated list of all package items with optional filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Package"
+                ],
+                "summary": "List all package items",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "description",
+                            "status",
+                            "quantity",
+                            "created_at"
+                        ],
+                        "type": "string",
+                        "description": "Sort field",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "asc",
+                        "description": "Sort order",
+                        "name": "sortOrder",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Package"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new package item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Package"
+                ],
+                "summary": "Create a new package item",
+                "parameters": [
+                    {
+                        "description": "Package item",
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Package"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Package"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/package/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List avaliable package status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Package"
+                ],
+                "summary": "List package status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.PackageStatus"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/package/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get package item by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Package"
+                ],
+                "summary": "Get package item by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Package"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an package item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Package"
+                ],
+                "summary": "Update an package item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Package item",
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Package"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Package"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete an package item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Package"
+                ],
+                "summary": "Delete an package item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/package/{id}/deliver": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Change the package status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Package"
+                ],
+                "summary": "Mark a package as delivered",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Package"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/package/{id}/lost": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Change the package status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Package"
+                ],
+                "summary": "Mark a package as lost",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Package ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Package"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -439,6 +860,45 @@
                 "InventoryTypeBicycle",
                 "InventoryTypeScooter",
                 "InventoryTypePet"
+            ]
+        },
+        "domain.Package": {
+            "type": "object",
+            "properties": {
+                "delivered_at": {
+                    "type": "string"
+                },
+                "delivered_to_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "received_at": {
+                    "type": "string"
+                },
+                "resident_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.PackageStatus"
+                }
+            }
+        },
+        "domain.PackageStatus": {
+            "type": "string",
+            "enum": [
+                "PENDENTE",
+                "ENTREGUE",
+                "EXTRAVIADO"
+            ],
+            "x-enum-varnames": [
+                "PackagePending",
+                "PackageDelivered",
+                "PackageLost"
             ]
         }
     },

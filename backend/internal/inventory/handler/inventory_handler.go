@@ -197,7 +197,7 @@ func (c *InventoryHandler) ImportPets(ctx *gin.Context) {
 
 // ListInventoryTypes 	godoc
 // @Summary List inventory types
-// @Description List inventory types
+// @Description List avaliable inventory types
 // @Tags Inventory
 // @Accept json
 // @Produce json
