@@ -13,8 +13,10 @@ const (
 	NotResident ResidentType = "NAO_RESIDENTE"
 )
 
+// Resident represents a resident in the system
+// swagger:model
 type Resident struct {
-	gorm.Model
+	gorm.Model   `swaggerignore:"true"`
 	Name         string       `json:"name" gorm:"size:100`
 	Document     string       `json:"document" gorm:"size:20`
 	Email        string       `json:"email" gorm:"size:100";check:email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$'`

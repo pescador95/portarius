@@ -27,8 +27,10 @@ const (
 	ReminderStatusCancelled ReminderStatus = "CANCELLED"
 )
 
+// Reminder represents a reminder for a package or reservation
+// swagger:model
 type Reminder struct {
-	gorm.Model
+	gorm.Model    `swaggerignore:"true"`
 	Recipient     string          `json:"recipient" gorm:"type:varchar(50);not null"`
 	ScheduledAt   time.Time       `json:"scheduled_at"`
 	SentAt        time.Time       `json:"sent_at"`

@@ -1,0 +1,4 @@
+--dir=cmd/portarius,internal
+--output=docs
+--parseInternal
+--parseDependency

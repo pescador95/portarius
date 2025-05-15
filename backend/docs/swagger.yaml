@@ -1,0 +1,298 @@
+basePath: /api
+definitions:
+  domain.Inventory:
+    properties:
+      description:
+        type: string
+      inventory_type:
+        $ref: '#/definitions/domain.InventoryType'
+      last_updated:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  domain.InventoryType:
+    enum:
+    - CARRO
+    - MOTO
+    - BICICLETA
+    - SCOOTER
+    - PET
+    type: string
+    x-enum-varnames:
+    - InventoryTypeCar
+    - InventoryTypeBike
+    - InventoryTypeBicycle
+    - InventoryTypeScooter
+    - InventoryTypePet
+host: localhost:8080
+info:
+  contact:
+    email: support@portarius.com
+    name: API Support
+    url: http://www.portarius.com/support
+  description: API for managing a package delivery system in a residential building
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Portarius API
+  version: "1.0"
+paths:
+  /inventory:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of all inventory items with optional filters
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Sort field
+        enum:
+        - name
+        - quantity
+        - created_at
+        in: query
+        name: sortBy
+        type: string
+      - default: asc
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Inventory'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: List all inventory items
+      tags:
+      - Inventory
+    post:
+      consumes:
+      - application/json
+      description: Create a new inventory item
+      parameters:
+      - description: Inventory item
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Inventory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Inventory'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Create a new inventory item
+      tags:
+      - Inventory
+  /inventory/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an inventory item
+      parameters:
+      - description: Inventory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Delete an inventory item
+      tags:
+      - Inventory
+    get:
+      consumes:
+      - application/json
+      description: Get inventory item by ID
+      parameters:
+      - description: Inventory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Inventory'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get inventory item by ID
+      tags:
+      - Inventory
+    put:
+      consumes:
+      - application/json
+      description: Update an inventory item
+      parameters:
+      - description: Inventory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Inventory item
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Inventory'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Inventory'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Update an inventory item
+      tags:
+      - Inventory
+  /inventory/import-pets:
+    post:
+      consumes:
+      - application/json
+      description: Import pets from CSV file
+      parameters:
+      - description: CSV file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Import cars from CSV
+      tags:
+      - Inventory
+  /inventory/inventory-types:
+    get:
+      consumes:
+      - application/json
+      description: List inventory types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.InventoryType'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: List inventory types
+      tags:
+      - Inventory
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -44,10 +44,12 @@ const (
 	HolydayPaymentAmount = 70.00
 )
 
+// Reservation represents a reservation for a space
+// swagger:model
 type Reservation struct {
-	gorm.Model
+	gorm.Model    `swaggerignore:"true"`
 	ResidentID    *uint                    `json:"resident_id"`
-	Resident      *residentDomain.Resident `json:"resident" gorm:"foreignKey:ResidentID"`
+	Resident      *residentDomain.Resident `json:"resident" gorm:"foreignKey:ResidentID" swaggerignore:"true"`
 	Space         SpaceType                `json:"space" gorm:"not null;type:varchar(10);default:'SALAO_1'"`
 	StartTime     time.Time                `json:"start_time" gorm:"not null"`
 	EndTime       time.Time                `json:"end_time"`

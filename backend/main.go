@@ -10,6 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	swaggerFiles "github.com/swaggo/files"
+
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "portarius/docs"
+
+	_ "portarius/internal/inventory/handler"
+
 	"portarius/middleware"
 
 	"portarius/internal/infra"
@@ -41,6 +49,26 @@ import (
 	"portarius/internal/whatsapp/handler"
 )
 
+// @title Portarius API
+// @version 1.0
+// @description API for managing a package delivery system in a residential building
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.portarius.com/support
+// @contact.email support@portarius.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api
+// @schemes http https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token
 func main() {
 
 	if err := godotenv.Load(); err != nil {
@@ -101,5 +129,8 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	r.Run(":" + port)
 }
