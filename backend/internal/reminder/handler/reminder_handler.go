@@ -143,7 +143,7 @@ func (h *ReminderHandler) Update(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Reminder ID"
-// @Success 204 {string} string "No Content"
+// @Success 200
 // @Failure 400
 // @Failure 500
 // @Router /reminders/{id} [delete]

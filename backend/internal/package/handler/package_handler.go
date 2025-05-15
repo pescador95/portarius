@@ -157,7 +157,7 @@ func (c *PackageHandler) Update(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Package ID"
-// @Success 200 {object} map[string]string
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404

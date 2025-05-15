@@ -149,7 +149,7 @@ func (c *InventoryHandler) Update(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Inventory ID"
-// @Success 200 {object} map[string]string
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -177,7 +177,7 @@ func (c *InventoryHandler) Delete(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param file formData file true "CSV file"
-// @Success 200 {object} map[string]string
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 500

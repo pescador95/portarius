@@ -164,6 +164,35 @@ definitions:
     - StatusCancelled
     - StatusKeysTaken
     - StatusKeysReturned
+  domain.Resident:
+    properties:
+      apartment:
+        type: string
+      block:
+        type: string
+      document:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      resident_type:
+        $ref: '#/definitions/domain.ResidentType'
+    type: object
+  domain.ResidentType:
+    enum:
+    - INQUILINO
+    - PROPRIETARIO
+    - KRUM
+    - NAO_RESIDENTE
+    type: string
+    x-enum-varnames:
+    - Tenant
+    - Owner
+    - Krum
+    - NotResident
   domain.SpaceType:
     enum:
     - SALAO_1
@@ -172,6 +201,40 @@ definitions:
     x-enum-varnames:
     - Salon1
     - Salon2
+  domain.User:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
+  user.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  user.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -186,6 +249,61 @@ info:
   title: Portarius API
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates user and returns JWT token.
+      parameters:
+      - description: User login data
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/user.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token and user info
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      summary: Login user
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user with the provided registration data.
+      parameters:
+      - description: User registration data
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/user.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created user (password omitted)
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Register a new user
+      tags:
+      - Auth
   /inventory:
     get:
       consumes:
@@ -290,10 +408,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "400":
           description: Bad Request
         "401":
@@ -389,10 +503,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "400":
           description: Bad Request
         "401":
@@ -534,10 +644,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "400":
           description: Bad Request
         "401":
@@ -801,10 +907,8 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: No Content
-          schema:
-            type: string
+        "200":
+          description: OK
         "400":
           description: Bad Request
         "500":
@@ -1425,11 +1529,7 @@ paths:
       description: Imports reservations data from a CSV file for salon spaces
       responses:
         "200":
-          description: Success message
-          schema:
-            additionalProperties:
-              type: string
-            type: object
+          description: OK
         "500":
           description: Internal Server Error
       security:
@@ -1597,6 +1697,302 @@ paths:
       summary: Get upcoming reservations
       tags:
       - Reservations
+  /residents/:
+    get:
+      description: Retrieves a paginated list of residents. Use query params 'page'
+        and 'pageSize' for pagination.
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of residents
+          schema:
+            items:
+              $ref: '#/definitions/domain.Resident'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      summary: Get all residents with pagination
+      tags:
+      - Residents
+    post:
+      consumes:
+      - application/json
+      description: Creates a new resident with the provided JSON body.
+      parameters:
+      - description: Resident data
+        in: body
+        name: resident
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Resident'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Resident created
+          schema:
+            $ref: '#/definitions/domain.Resident'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new resident
+      tags:
+      - Residents
+  /residents/{id}:
+    delete:
+      description: Deletes the resident with the specified ID.
+      parameters:
+      - description: Resident ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a resident by ID
+      tags:
+      - Residents
+    get:
+      description: Retrieves a resident by their ID.
+      parameters:
+      - description: Resident ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Resident found
+          schema:
+            $ref: '#/definitions/domain.Resident'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get resident by ID
+      tags:
+      - Residents
+    put:
+      consumes:
+      - application/json
+      description: Updates the resident with the given ID using the JSON body.
+      parameters:
+      - description: Resident ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Resident data
+        in: body
+        name: resident
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Resident'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Resident updated
+          schema:
+            $ref: '#/definitions/domain.Resident'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update an existing resident
+      tags:
+      - Residents
+  /residents/import:
+    post:
+      description: Imports residents data from a CSV file (implementation-specific).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Import residents from CSV
+      tags:
+      - Residents
+  /residents/residentType:
+    get:
+      description: Returns the list of possible resident types.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.ResidentType'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List all resident types
+      tags:
+      - Residents
+  /users/:
+    get:
+      description: Retrieves paginated list of users (passwords omitted).
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of users
+          schema:
+            items:
+              $ref: '#/definitions/domain.User'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      summary: Get all users with pagination
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      description: Deletes user with the specified ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      summary: Delete a user by ID
+      tags:
+      - Users
+    get:
+      description: Retrieves user details by ID (password omitted).
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User found
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      summary: Get user by ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Updates the user identified by ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated user (password omitted)
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      summary: Update a user
+      tags:
+      - Users
 schemes:
 - http
 - https

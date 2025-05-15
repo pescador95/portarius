@@ -571,7 +571,7 @@ func (c *ReservationHandler) UpdateStatus(ctx *gin.Context, status domain.Reserv
 // @Description Imports reservations data from a CSV file for salon spaces
 // @Tags Reservations
 // @Security BearerAuth
-// @Success 200 {object} map[string]string "Success message"
+// @Success 200
 // @Failure 500
 // @Router /reservations/import-salon [post]
 func (c *ReservationHandler) ImportSalonReservations(ctx *gin.Context) {

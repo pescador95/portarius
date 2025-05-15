@@ -29,6 +29,18 @@ type RegisterRequest struct {
 func NewUserHandler(repo domain.IUserRepository) *UserHandler {
 	return &UserHandler{repo: repo}
 }
+
+// Register godoc
+// @Summary Register a new user
+// @Description Creates a new user with the provided registration data.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param register body RegisterRequest true "User registration data"
+// @Success 201 {object} domain.User "Created user (password omitted)"
+// @Failure 400
+// @Failure 500
+// @Router /auth/register [post]
 func (c *UserHandler) Register(ctx *gin.Context) {
 	var req RegisterRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -51,6 +63,18 @@ func (c *UserHandler) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, user)
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Authenticates user and returns JWT token.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param login body LoginRequest true "User login data"
+// @Success 200 {object} map[string]interface{} "JWT token and user info"
+// @Failure 400
+// @Failure 401
+// @Failure 500
+// @Router /auth/login [post]
 func (c *UserHandler) Login(ctx *gin.Context) {
 	var req LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -92,6 +116,18 @@ func (c *UserHandler) Login(ctx *gin.Context) {
 	})
 }
 
+// GetAll godoc
+// @Summary Get all users with pagination
+// @Description Retrieves paginated list of users (passwords omitted).
+// @Tags Users
+// @Produce json
+// @Param page query int false "Page number"
+// @Param pageSize query int false "Page size"
+// @Success 200 {array} domain.User "List of users"
+// @Failure 400
+// @Failure 401
+// @Failure 500
+// @Router /users/ [get]
 func (c *UserHandler) GetAll(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
@@ -108,6 +144,17 @@ func (c *UserHandler) GetAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
+// GetByID godoc
+// @Summary Get user by ID
+// @Description Retrieves user details by ID (password omitted).
+// @Tags Users
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} domain.User "User found"
+// @Failure 400
+// @Failure 401
+// @Failure 500
+// @Router /users/{id} [get]
 func (c *UserHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -125,6 +172,19 @@ func (c *UserHandler) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+// Update godoc
+// @Summary Update a user
+// @Description Updates the user identified by ID.
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param user body domain.User true "User data"
+// @Success 200 {object} domain.User "Updated user (password omitted)"
+// @Failure 400
+// @Failure 401
+// @Failure 500
+// @Router /users/{id} [put]
 func (c *UserHandler) Update(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -148,6 +208,17 @@ func (c *UserHandler) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+// Delete godoc
+// @Summary Delete a user by ID
+// @Description Deletes user with the specified ID.
+// @Tags Users
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200
+// @Failure 400
+// @Failure 401
+// @Failure 500
+// @Router /users/{id} [delete]
 func (c *UserHandler) Delete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
