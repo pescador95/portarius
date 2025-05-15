@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"portarius/utils"
+	"portarius/internal/utils"
 
 	"gorm.io/gorm"
 )

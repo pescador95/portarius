@@ -18,7 +18,7 @@ import (
 
 	_ "portarius/internal/inventory/handler"
 
-	"portarius/middleware"
+	middleware "portarius/internal/middleware/auth"
 
 	"portarius/internal/infra"
 

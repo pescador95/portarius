@@ -10,7 +10,7 @@ import (
 
 	"portarius/internal/inventory/domain"
 	residentDomain "portarius/internal/resident/domain"
-	"portarius/utils"
+	"portarius/internal/utils"
 
 	"gorm.io/gorm"
 )
