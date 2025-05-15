@@ -56,6 +56,53 @@ definitions:
     - PackagePending
     - PackageDelivered
     - PackageLost
+  domain.Reminder:
+    properties:
+      channel:
+        $ref: '#/definitions/domain.ReminderChannel'
+      package_id:
+        type: integer
+      recipient:
+        type: string
+      reservation_id:
+        type: integer
+      scheduled_at:
+        type: string
+      sent_at:
+        type: string
+      status:
+        $ref: '#/definitions/domain.ReminderStatus'
+    type: object
+  domain.ReminderChannel:
+    enum:
+    - WHATSAPP
+    - EMAIL
+    - SMS
+    - TELEGRAM
+    - INSTAGRAM
+    - FACEBOOK
+    - DISCORD
+    type: string
+    x-enum-varnames:
+    - ReminderChannelWhatsApp
+    - ReminderChannelEmail
+    - ReminderChannelSMS
+    - ReminderChannelTelegram
+    - ReminderChannelInstagram
+    - ReminderChannelFacebook
+    - ReminderChannelDiscord
+  domain.ReminderStatus:
+    enum:
+    - PENDING
+    - SENT
+    - FAILED
+    - CANCELLED
+    type: string
+    x-enum-varnames:
+    - ReminderStatusPending
+    - ReminderStatusSent
+    - ReminderStatusFailed
+    - ReminderStatusCancelled
 host: localhost:8080
 info:
   contact:
@@ -584,6 +631,367 @@ paths:
       summary: List package status
       tags:
       - Package
+  /reminders:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of all reminders with optional filters
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      - description: Search by recipient
+        in: query
+        name: search
+        type: string
+      - description: Sort field
+        enum:
+        - recipient
+        - scheduled_at
+        - sent_at
+        - status
+        - channel
+        - created_at
+        in: query
+        name: sortBy
+        type: string
+      - default: asc
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Reminder'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: List all reminders
+      tags:
+      - Reminders
+    post:
+      consumes:
+      - application/json
+      description: Create a new reminder with recipient, scheduled time, etc.
+      parameters:
+      - description: Reminder to create
+        in: body
+        name: reminder
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Reminder'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Reminder'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Create a new reminder
+      tags:
+      - Reminders
+  /reminders/{id}:
+    delete:
+      description: Delete a reminder by its ID
+      parameters:
+      - description: Reminder ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Delete a reminder
+      tags:
+      - Reminders
+    get:
+      description: Get a single reminder by its ID
+      parameters:
+      - description: Reminder ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Reminder'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      security:
+      - BearerAuth: []
+      summary: Get reminder by ID
+      tags:
+      - Reminders
+    put:
+      consumes:
+      - application/json
+      description: Update reminder fields like scheduled time, status, etc.
+      parameters:
+      - description: Reminder ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated reminder
+        in: body
+        name: reminder
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Reminder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Reminder'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Update an existing reminder
+      tags:
+      - Reminders
+  /reminders/channel/{channel}:
+    get:
+      description: Get a list of reminders filtered by channel
+      parameters:
+      - description: Reminder channel
+        enum:
+        - WHATSAPP
+        - EMAIL
+        - SMS
+        - TELEGRAM
+        - INSTAGRAM
+        - FACEBOOK
+        - DISCORD
+        in: path
+        name: channel
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Reminder'
+            type: array
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get reminders by channel
+      tags:
+      - Reminders
+  /reminders/package/{packageID}:
+    get:
+      description: Get a reminder linked to a specific package
+      parameters:
+      - description: Package ID
+        in: path
+        name: packageID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Reminder'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      security:
+      - BearerAuth: []
+      summary: Get reminder by package ID
+      tags:
+      - Reminders
+  /reminders/pending:
+    get:
+      description: Get all reminders that are still pending
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Reminder'
+            type: array
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get reminders with status PENDING
+      tags:
+      - Reminders
+  /reminders/recipient/{recipient}:
+    get:
+      description: Get all reminders sent to a specific recipient
+      parameters:
+      - description: Recipient
+        in: path
+        name: recipient
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Reminder'
+            type: array
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get reminders by recipient
+      tags:
+      - Reminders
+  /reminders/reminderChannel:
+    get:
+      description: Returns all supported reminder channels
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List all reminder channels
+      tags:
+      - Reminders
+  /reminders/reminderStatus:
+    get:
+      description: Returns all possible reminder statuses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List all reminder statuses
+      tags:
+      - Reminders
+  /reminders/reservation/{reservationID}:
+    get:
+      description: Get a reminder linked to a specific reservation
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: reservationID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Reminder'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      security:
+      - BearerAuth: []
+      summary: Get reminder by reservation ID
+      tags:
+      - Reminders
+  /reminders/status/{status}:
+    get:
+      description: Get a list of reminders filtered by status
+      parameters:
+      - description: Reminder status
+        enum:
+        - PENDING
+        - SENT
+        - FAILED
+        - CANCELLED
+        in: path
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Reminder'
+            type: array
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get reminders by status
+      tags:
+      - Reminders
 schemes:
 - http
 - https

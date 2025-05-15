@@ -819,6 +819,569 @@
                     }
                 }
             }
+        },
+        "/reminders": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get paginated list of all reminders with optional filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "List all reminders",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by recipient",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "recipient",
+                            "scheduled_at",
+                            "sent_at",
+                            "status",
+                            "channel",
+                            "created_at"
+                        ],
+                        "type": "string",
+                        "description": "Sort field",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "asc",
+                        "description": "Sort order",
+                        "name": "sortOrder",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Reminder"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new reminder with recipient, scheduled time, etc.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Create a new reminder",
+                "parameters": [
+                    {
+                        "description": "Reminder to create",
+                        "name": "reminder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Reminder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Reminder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/reminders/channel/{channel}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of reminders filtered by channel",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Get reminders by channel",
+                "parameters": [
+                    {
+                        "enum": [
+                            "WHATSAPP",
+                            "EMAIL",
+                            "SMS",
+                            "TELEGRAM",
+                            "INSTAGRAM",
+                            "FACEBOOK",
+                            "DISCORD"
+                        ],
+                        "type": "string",
+                        "description": "Reminder channel",
+                        "name": "channel",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Reminder"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/reminders/package/{packageID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a reminder linked to a specific package",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Get reminder by package ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Package ID",
+                        "name": "packageID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Reminder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/reminders/pending": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all reminders that are still pending",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Get reminders with status PENDING",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Reminder"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/reminders/recipient/{recipient}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all reminders sent to a specific recipient",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Get reminders by recipient",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Recipient",
+                        "name": "recipient",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Reminder"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/reminders/reminderChannel": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns all supported reminder channels",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "List all reminder channels",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/reminders/reminderStatus": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns all possible reminder statuses",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "List all reminder statuses",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/reminders/reservation/{reservationID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a reminder linked to a specific reservation",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Get reminder by reservation ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reservation ID",
+                        "name": "reservationID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Reminder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/reminders/status/{status}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of reminders filtered by status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Get reminders by status",
+                "parameters": [
+                    {
+                        "enum": [
+                            "PENDING",
+                            "SENT",
+                            "FAILED",
+                            "CANCELLED"
+                        ],
+                        "type": "string",
+                        "description": "Reminder status",
+                        "name": "status",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Reminder"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/reminders/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a single reminder by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Get reminder by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reminder ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Reminder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update reminder fields like scheduled time, status, etc.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Update an existing reminder",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reminder ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated reminder",
+                        "name": "reminder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Reminder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Reminder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a reminder by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Delete a reminder",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reminder ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -899,6 +1462,68 @@
                 "PackagePending",
                 "PackageDelivered",
                 "PackageLost"
+            ]
+        },
+        "domain.Reminder": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "$ref": "#/definitions/domain.ReminderChannel"
+                },
+                "package_id": {
+                    "type": "integer"
+                },
+                "recipient": {
+                    "type": "string"
+                },
+                "reservation_id": {
+                    "type": "integer"
+                },
+                "scheduled_at": {
+                    "type": "string"
+                },
+                "sent_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.ReminderStatus"
+                }
+            }
+        },
+        "domain.ReminderChannel": {
+            "type": "string",
+            "enum": [
+                "WHATSAPP",
+                "EMAIL",
+                "SMS",
+                "TELEGRAM",
+                "INSTAGRAM",
+                "FACEBOOK",
+                "DISCORD"
+            ],
+            "x-enum-varnames": [
+                "ReminderChannelWhatsApp",
+                "ReminderChannelEmail",
+                "ReminderChannelSMS",
+                "ReminderChannelTelegram",
+                "ReminderChannelInstagram",
+                "ReminderChannelFacebook",
+                "ReminderChannelDiscord"
+            ]
+        },
+        "domain.ReminderStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "SENT",
+                "FAILED",
+                "CANCELLED"
+            ],
+            "x-enum-varnames": [
+                "ReminderStatusPending",
+                "ReminderStatusSent",
+                "ReminderStatusFailed",
+                "ReminderStatusCancelled"
             ]
         }
     },
