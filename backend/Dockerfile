@@ -1,4 +1,3 @@
-# Etapa 1: build da aplicação
 FROM golang:latest as builder
 
 WORKDIR /app
