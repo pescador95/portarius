@@ -80,7 +80,7 @@ func (c *ReservationHandler) GetByID(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param reservation body domain.Reservation true "Reservation data"
-// @Success 201 {object} domain.Reservation
+// @Success 201
 // @Failure 400
 // @Failure 409
 // @Failure 500
@@ -114,7 +114,7 @@ func (c *ReservationHandler) Create(ctx *gin.Context) {
 		})
 	}
 
-	ctx.JSON(http.StatusCreated, reservation)
+	ctx.Status(http.StatusCreated)
 }
 
 // Update godoc
@@ -126,7 +126,7 @@ func (c *ReservationHandler) Create(ctx *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Reservation ID"
 // @Param reservation body domain.Reservation true "Updated data"
-// @Success 200 {object} domain.Reservation
+// @Success 200
 // @Failure 400
 // @Failure 404
 // @Failure 409
@@ -168,7 +168,7 @@ func (c *ReservationHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, reservation)
+	ctx.Status(http.StatusOK)
 }
 
 // Delete godoc
@@ -177,7 +177,7 @@ func (c *ReservationHandler) Update(ctx *gin.Context) {
 // @Tags Reservations
 // @Security BearerAuth
 // @Param id path int true "Reservation ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -194,7 +194,7 @@ func (c *ReservationHandler) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Reserva excluída com sucesso"})
+	ctx.Status(http.StatusOK)
 }
 
 // Confirm godoc
@@ -220,7 +220,7 @@ func (c *ReservationHandler) Confirm(ctx *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Reservation ID"
 // @Param body body domain.Reservation true "Cancellation body (only CancellationReason will be used)"
-// @Success 200 {object} domain.Reservation
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -255,7 +255,7 @@ func (c *ReservationHandler) Cancel(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, reservation)
+	ctx.Status(http.StatusOK)
 }
 
 // TakeKeys godoc
@@ -264,7 +264,7 @@ func (c *ReservationHandler) Cancel(ctx *gin.Context) {
 // @Tags Reservations
 // @Security BearerAuth
 // @Param id path int true "Reservation ID"
-// @Success 200 {object} domain.Reservation
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -297,7 +297,7 @@ func (c *ReservationHandler) TakeKeys(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, reservation)
+	ctx.Status(http.StatusOK)
 }
 
 // ReturnKeys godoc
@@ -306,7 +306,7 @@ func (c *ReservationHandler) TakeKeys(ctx *gin.Context) {
 // @Tags Reservations
 // @Security BearerAuth
 // @Param id path int true "Reservation ID"
-// @Success 200 {object} domain.Reservation
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -339,7 +339,7 @@ func (c *ReservationHandler) ReturnKeys(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, reservation)
+	ctx.Status(http.StatusOK)
 }
 
 // Complete godoc
@@ -348,7 +348,7 @@ func (c *ReservationHandler) ReturnKeys(ctx *gin.Context) {
 // @Tags Reservations
 // @Security BearerAuth
 // @Param id path int true "Reservation ID"
-// @Success 200 {object} domain.Reservation
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -365,7 +365,7 @@ func (c *ReservationHandler) Complete(ctx *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Reservation ID"
 // @Param body body domain.Reservation true "Reservation payment details (payment_amount)"
-// @Success 200 {object} domain.Reservation
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -407,7 +407,7 @@ func (c *ReservationHandler) ConfirmPayment(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, reservation)
+	ctx.Status(http.StatusOK)
 }
 
 // GetByResident godoc
@@ -563,7 +563,7 @@ func (c *ReservationHandler) UpdateStatus(ctx *gin.Context, status domain.Reserv
 		return
 	}
 
-	ctx.JSON(http.StatusOK, reservation)
+	ctx.Status(http.StatusOK)
 }
 
 // ImportSalonReservations godoc
@@ -582,9 +582,7 @@ func (c *ReservationHandler) ImportSalonReservations(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Reservas de salão importadas com sucesso",
-	})
+	ctx.Status(http.StatusOK)
 }
 
 // ListReservationStatus godoc

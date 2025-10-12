@@ -84,7 +84,7 @@ func (c *PackageHandler) GetByID(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param item body domain.Package true "Package item"
-// @Success 201 {object} domain.Package
+// @Success 201
 // @Failure 400
 // @Failure 401
 // @Failure 500
@@ -110,7 +110,7 @@ func (c *PackageHandler) Create(ctx *gin.Context) {
 		})
 	}
 
-	ctx.JSON(http.StatusCreated, pkg)
+	ctx.Status(http.StatusCreated)
 }
 
 // Update 	godoc
@@ -122,7 +122,7 @@ func (c *PackageHandler) Create(ctx *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Package ID"
 // @Param item body domain.Package true "Package item"
-// @Success 200 {object} domain.Package
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -146,7 +146,7 @@ func (c *PackageHandler) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, pkg)
+	ctx.Status(http.StatusOK)
 }
 
 // Delete 	godoc
@@ -174,7 +174,7 @@ func (c *PackageHandler) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Encomenda excluída com sucesso"})
+	ctx.Status(http.StatusOK)
 }
 
 // MarkAsDelivered 	godoc
@@ -185,7 +185,7 @@ func (c *PackageHandler) Delete(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Package ID"
-// @Success 200 {object} domain.Package
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 500
@@ -209,7 +209,7 @@ func (c *PackageHandler) MarkAsDelivered(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, pkg)
+	ctx.Status(http.StatusOK)
 }
 
 // MarkAsLost 	godoc
@@ -220,7 +220,7 @@ func (c *PackageHandler) MarkAsDelivered(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Package ID"
-// @Success 200 {object} domain.Package
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 500
@@ -244,7 +244,7 @@ func (c *PackageHandler) MarkAsLost(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, pkg)
+	ctx.Status(http.StatusOK)
 }
 
 // ListPackageStatus 	godoc

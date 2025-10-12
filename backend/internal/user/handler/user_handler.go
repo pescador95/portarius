@@ -37,7 +37,7 @@ func NewUserHandler(repo domain.IUserRepository) *UserHandler {
 // @Accept json
 // @Produce json
 // @Param register body RegisterRequest true "User registration data"
-// @Success 201 {object} domain.User "Created user (password omitted)"
+// @Success 201
 // @Failure 400
 // @Failure 500
 // @Router /auth/register [post]
@@ -60,7 +60,7 @@ func (c *UserHandler) Register(ctx *gin.Context) {
 	}
 
 	user.Password = ""
-	ctx.JSON(http.StatusCreated, user)
+	ctx.Status(http.StatusCreated)
 }
 
 // Login godoc
@@ -180,7 +180,7 @@ func (c *UserHandler) GetByID(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "User ID"
 // @Param user body domain.User true "User data"
-// @Success 200 {object} domain.User "Updated user (password omitted)"
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 500
@@ -205,7 +205,7 @@ func (c *UserHandler) Update(ctx *gin.Context) {
 	}
 
 	user.Password = ""
-	ctx.JSON(http.StatusOK, user)
+	ctx.Status(http.StatusOK)
 }
 
 // Delete godoc
@@ -231,5 +231,5 @@ func (c *UserHandler) Delete(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Usuário excluído com sucesso"})
+	ctx.Status(http.StatusOK)
 }

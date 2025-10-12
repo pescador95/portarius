@@ -80,7 +80,7 @@ func (h *ReminderHandler) GetByID(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param reminder body domain.Reminder true "Reminder to create"
-// @Success 201 {object} domain.Reminder
+// @Success 201
 // @Failure 400
 // @Failure 500
 // @Router /reminders [post]
@@ -96,7 +96,7 @@ func (h *ReminderHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, reminder)
+	c.Status(http.StatusCreated)
 }
 
 // Update godoc
@@ -108,7 +108,7 @@ func (h *ReminderHandler) Create(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Reminder ID"
 // @Param reminder body domain.Reminder true "Updated reminder"
-// @Success 200 {object} domain.Reminder
+// @Success 200
 // @Failure 400
 // @Failure 500
 // @Router /reminders/{id} [put]
@@ -133,7 +133,7 @@ func (h *ReminderHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, reminder)
+	c.Status(http.StatusOK)
 }
 
 // Delete godoc
@@ -160,7 +160,7 @@ func (h *ReminderHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusNoContent)
+	c.Status(http.StatusOK)
 }
 
 // GetByReservationID godoc

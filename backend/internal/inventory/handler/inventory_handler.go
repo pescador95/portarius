@@ -86,7 +86,7 @@ func (c *InventoryHandler) GetByID(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param item body domain.Inventory true "Inventory item"
-// @Success 201 {object} domain.Inventory
+// @Success 201
 // @Failure 400
 // @Failure 401
 // @Failure 500
@@ -102,7 +102,7 @@ func (c *InventoryHandler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusCreated, item)
+	ctx.Status(http.StatusCreated)
 }
 
 // Update 	godoc
@@ -114,7 +114,7 @@ func (c *InventoryHandler) Create(ctx *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Inventory ID"
 // @Param item body domain.Inventory true "Inventory item"
-// @Success 200 {object} domain.Inventory
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -138,7 +138,7 @@ func (c *InventoryHandler) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, item)
+	ctx.Status(http.StatusOK)
 }
 
 // Delete 	godoc
@@ -166,7 +166,7 @@ func (c *InventoryHandler) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Item excluído com sucesso"})
+	ctx.Status(http.StatusOK)
 }
 
 // ImportPets 	godoc
@@ -190,9 +190,7 @@ func (c *InventoryHandler) ImportPets(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Pets importados com sucesso",
-	})
+	ctx.Status(http.StatusOK)
 }
 
 // ListInventoryTypes 	godoc

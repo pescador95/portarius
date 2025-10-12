@@ -79,7 +79,7 @@ func (c *ResidentHandler) GetByID(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param resident body domain.Resident true "Resident data"
-// @Success 201 {object} domain.Resident "Resident created"
+// @Success 201
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -95,7 +95,7 @@ func (c *ResidentHandler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusCreated, resident)
+	ctx.Status(http.StatusCreated)
 }
 
 // Update godoc
@@ -106,7 +106,7 @@ func (c *ResidentHandler) Create(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Resident ID"
 // @Param resident body domain.Resident true "Resident data"
-// @Success 200 {object} domain.Resident "Resident updated"
+// @Success 200
 // @Failure 400
 // @Failure 401
 // @Failure 404
@@ -130,7 +130,7 @@ func (c *ResidentHandler) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, resident)
+	ctx.Status(http.StatusOK)
 }
 
 // Delete godoc
@@ -156,7 +156,7 @@ func (c *ResidentHandler) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Morador excluído com sucesso"})
+	ctx.Status(http.StatusOK)
 }
 
 // ImportResidents godoc
@@ -175,7 +175,7 @@ func (c *ResidentHandler) ImportResidents(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Moradores importados com sucesso"})
+	ctx.Status(http.StatusOK)
 }
 
 // ListResidentType godoc
