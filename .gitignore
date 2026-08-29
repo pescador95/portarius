@@ -53,6 +53,7 @@ go.log
 
 # IDE e editores
 .idea/
-.vscode/
+.vscode/*
+!.vscode/launch.json
 *.swp
 *.swo
